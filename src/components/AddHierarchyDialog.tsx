@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,10 +8,23 @@ interface AddHierarchyDialogProps {
   onOpenChange: (open: boolean) => void;
   type: 'folder' | 'project';
   onSubmit: (name: string) => void;
+  initialValue?: string;
+  isEditing?: boolean;
 }
 
-const AddHierarchyDialog = ({ open, onOpenChange, type, onSubmit }: AddHierarchyDialogProps) => {
-  const [name, setName] = useState('');
+const AddHierarchyDialog = ({ 
+  open, 
+  onOpenChange, 
+  type, 
+  onSubmit, 
+  initialValue = '', 
+  isEditing = false 
+}: AddHierarchyDialogProps) => {
+  const [name, setName] = useState(initialValue);
+
+  useEffect(() => {
+    if (open) setName(initialValue);
+  }, [open, initialValue]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +40,7 @@ const AddHierarchyDialog = ({ open, onOpenChange, type, onSubmit }: AddHierarchy
       <DialogContent className="rounded-[32px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-black">
-            New {type === 'folder' ? 'Folder' : 'Project'}
+            {isEditing ? `Rename ${type}` : `New ${type}`}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -40,7 +53,7 @@ const AddHierarchyDialog = ({ open, onOpenChange, type, onSubmit }: AddHierarchy
           />
           <DialogFooter>
             <Button type="submit" className="w-full rounded-xl bg-indigo-600 h-12 font-bold">
-              Create
+              {isEditing ? 'Save Changes' : 'Create'}
             </Button>
           </DialogFooter>
         </form>

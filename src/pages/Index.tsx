@@ -10,18 +10,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Folder, Project } from '../types/note';
+import { showSuccess } from '@/utils/toast';
 
 const Index = () => {
-  const { folders, projects, notes, addFolder, addProject, addNote, deleteNote } = useStorage();
+  const { 
+    folders, projects, notes, 
+    addFolder, updateFolder, deleteFolder,
+    addProject, updateProject, deleteProject,
+    addNote, deleteNote 
+  } = useStorage();
+  
   const [search, setSearch] = useState('');
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Dialog states
-  const [folderDialogOpen, setFolderDialogOpen] = useState(false);
-  const [projectDialogOpen, setProjectDialogOpen] = useState(false);
-  const [targetFolderId, setTargetFolderId] = useState<string | null>(null);
+  const [folderDialog, setFolderDialog] = useState<{ open: boolean; folder?: Folder }>({ open: false });
+  const [projectDialog, setProjectDialog] = useState<{ open: boolean; project?: Project; folderId?: string }>({ open: false });
 
   const activeProject = projects.find(p => p.id === activeProjectId);
   const filteredNotes = notes.filter(n => {
@@ -31,33 +38,50 @@ const Index = () => {
     return matchesSearch && matchesProject;
   });
 
-  const handleAddProjectInit = (folderId: string) => {
-    setTargetFolderId(folderId);
-    setProjectDialogOpen(true);
-  };
-
   const handleSelectProject = (id: string | null) => {
     setActiveProjectId(id);
     if (isMobile) setMobileMenuOpen(false);
   };
 
+  const onFolderSubmit = (name: string) => {
+    if (folderDialog.folder) {
+      updateFolder(folderDialog.folder.id, name);
+      showSuccess("Folder updated");
+    } else {
+      addFolder(name);
+      showSuccess("Folder created");
+    }
+  };
+
+  const onProjectSubmit = (name: string) => {
+    if (projectDialog.project) {
+      updateProject(projectDialog.project.id, name);
+      showSuccess("Project updated");
+    } else if (projectDialog.folderId) {
+      addProject(projectDialog.folderId, name);
+      showSuccess("Project created");
+    }
+  };
+
   return (
     <div className="flex h-screen bg-[#F8F9FE] dark:bg-zinc-950 overflow-hidden">
-      {/* Desktop Sidebar */}
       {!isMobile && (
         <Sidebar 
           folders={folders}
           projects={projects}
           activeProjectId={activeProjectId}
           onSelectProject={handleSelectProject}
-          onAddFolder={() => setFolderDialogOpen(true)}
-          onAddProject={handleAddProjectInit}
+          onAddFolder={() => setFolderDialog({ open: true })}
+          onEditFolder={(folder) => setFolderDialog({ open: true, folder })}
+          onDeleteFolder={(id) => { deleteFolder(id); showSuccess("Folder removed"); }}
+          onAddProject={(folderId) => setProjectDialog({ open: true, folderId })}
+          onEditProject={(project) => setProjectDialog({ open: true, project })}
+          onDeleteProject={(id) => { deleteProject(id); showSuccess("Project removed"); }}
           className="w-72 border-r border-indigo-50 dark:border-zinc-800"
         />
       )}
 
       <div className="flex-1 flex flex-col overflow-hidden relative">
-        {/* Header */}
         <header className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-indigo-50 dark:border-zinc-800 px-4 sm:px-8 py-4 sm:py-6">
           <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -74,8 +98,12 @@ const Index = () => {
                       projects={projects}
                       activeProjectId={activeProjectId}
                       onSelectProject={handleSelectProject}
-                      onAddFolder={() => setFolderDialogOpen(true)}
-                      onAddProject={handleAddProjectInit}
+                      onAddFolder={() => setFolderDialog({ open: true })}
+                      onEditFolder={(folder) => setFolderDialog({ open: true, folder })}
+                      onDeleteFolder={deleteFolder}
+                      onAddProject={(folderId) => setProjectDialog({ open: true, folderId })}
+                      onEditProject={(project) => setProjectDialog({ open: true, project })}
+                      onDeleteProject={deleteProject}
                     />
                   </SheetContent>
                 </Sheet>
@@ -105,7 +133,6 @@ const Index = () => {
           </div>
         </header>
 
-        {/* Content */}
         <main className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 sm:py-8">
           <div className="max-w-5xl mx-auto">
             {filteredNotes.length === 0 ? (
@@ -113,9 +140,7 @@ const Index = () => {
                 <div className="w-20 h-20 sm:w-24 sm:h-24 bg-indigo-50 dark:bg-zinc-900 rounded-[32px] sm:rounded-[40px] flex items-center justify-center mb-6">
                   {activeProjectId ? <Sparkles className="text-indigo-200 dark:text-zinc-700" size={32} /> : <Inbox className="text-indigo-200 dark:text-zinc-700" size={32} />}
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold mb-2">
-                  No notes found
-                </h3>
+                <h3 className="text-lg sm:text-xl font-bold mb-2">No notes found</h3>
                 <p className="text-sm text-muted-foreground max-w-[280px]">
                   {activeProjectId ? 'Start your first project-specific entry here.' : 'Capture a quick thought or an uncategorized note.'}
                 </p>
@@ -138,17 +163,21 @@ const Index = () => {
       />
 
       <AddHierarchyDialog 
-        open={folderDialogOpen}
-        onOpenChange={setFolderDialogOpen}
+        open={folderDialog.open}
+        onOpenChange={(open) => setFolderDialog({ ...folderDialog, open })}
         type="folder"
-        onSubmit={addFolder}
+        onSubmit={onFolderSubmit}
+        initialValue={folderDialog.folder?.name}
+        isEditing={!!folderDialog.folder}
       />
 
       <AddHierarchyDialog 
-        open={projectDialogOpen}
-        onOpenChange={setProjectDialogOpen}
+        open={projectDialog.open}
+        onOpenChange={(open) => setProjectDialog({ ...projectDialog, open })}
         type="project"
-        onSubmit={(name) => targetFolderId && addProject(targetFolderId, name)}
+        onSubmit={onProjectSubmit}
+        initialValue={projectDialog.project?.name}
+        isEditing={!!projectDialog.project}
       />
     </div>
   );

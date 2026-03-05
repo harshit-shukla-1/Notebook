@@ -1,10 +1,16 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Folder as FolderIcon, ChevronRight, ChevronDown, Plus, Package, Inbox } from 'lucide-react';
+import { Folder as FolderIcon, ChevronRight, ChevronDown, Plus, Package, Inbox, MoreVertical, Trash2, Edit2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Folder, Project } from '../types/note';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface SidebarProps {
   folders: Folder[];
@@ -12,7 +18,11 @@ interface SidebarProps {
   activeProjectId: string | null;
   onSelectProject: (id: string | null) => void;
   onAddFolder: () => void;
+  onEditFolder: (folder: Folder) => void;
+  onDeleteFolder: (id: string) => void;
   onAddProject: (folderId: string) => void;
+  onEditProject: (project: Project) => void;
+  onDeleteProject: (id: string) => void;
   className?: string;
 }
 
@@ -22,7 +32,11 @@ const Sidebar = ({
   activeProjectId, 
   onSelectProject, 
   onAddFolder, 
+  onEditFolder,
+  onDeleteFolder,
   onAddProject,
+  onEditProject,
+  onDeleteProject,
   className
 }: SidebarProps) => {
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
@@ -74,33 +88,73 @@ const Sidebar = ({
                 </div>
                 <FolderIcon size={18} className="text-indigo-500" />
                 <span className="flex-1 text-left truncate">{folder.name}</span>
-                <button 
-                  className="p-1.5 hover:bg-indigo-100 dark:hover:bg-zinc-700 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" 
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    onAddProject(folder.id); 
-                  }}
-                >
-                  <Plus size={14} className="text-indigo-600" />
-                </button>
+                
+                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="p-1 hover:bg-indigo-100 dark:hover:bg-zinc-700 rounded-lg">
+                        <MoreVertical size={14} className="text-muted-foreground" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="rounded-xl">
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEditFolder(folder); }}>
+                        <Edit2 size={14} className="mr-2" /> Rename
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); onDeleteFolder(folder.id); }}>
+                        <Trash2 size={14} className="mr-2" /> Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <button 
+                    className="p-1 hover:bg-indigo-100 dark:hover:bg-zinc-700 rounded-lg" 
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      onAddProject(folder.id); 
+                    }}
+                  >
+                    <Plus size={14} className="text-indigo-600" />
+                  </button>
+                </div>
               </div>
 
               {expandedFolders[folder.id] && (
                 <div className="ml-5 space-y-1 border-l-2 border-indigo-50 dark:border-zinc-800 pl-3">
                   {projects.filter(p => p.folderId === folder.id).map(project => (
-                    <button
+                    <div 
                       key={project.id}
-                      onClick={() => onSelectProject(project.id)}
-                      className={cn(
-                        "w-full flex items-center gap-3 p-2.5 rounded-xl text-xs transition-all",
-                        activeProjectId === project.id 
-                          ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" 
-                          : "hover:bg-secondary/50 text-muted-foreground"
-                      )}
+                      className="group flex items-center"
                     >
-                      <Package size={16} />
-                      <span className="truncate font-medium">{project.name}</span>
-                    </button>
+                      <button
+                        onClick={() => onSelectProject(project.id)}
+                        className={cn(
+                          "flex-1 flex items-center gap-3 p-2.5 rounded-xl text-xs transition-all",
+                          activeProjectId === project.id 
+                            ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" 
+                            : "hover:bg-secondary/50 text-muted-foreground"
+                        )}
+                      >
+                        <Package size={16} />
+                        <span className="truncate font-medium">{project.name}</span>
+                      </button>
+
+                      <div className="flex items-center gap-2 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="p-1 hover:bg-indigo-100 dark:hover:bg-zinc-700 rounded-lg">
+                              <MoreVertical size={14} className="text-muted-foreground" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="rounded-xl">
+                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEditProject(project); }}>
+                              <Edit2 size={14} className="mr-2" /> Rename
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); onDeleteProject(project.id); }}>
+                              <Trash2 size={14} className="mr-2" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
                   ))}
                   {projects.filter(p => p.folderId === folder.id).length === 0 && (
                     <p className="text-[10px] text-muted-foreground/50 py-2 pl-7 italic">No projects yet</p>
