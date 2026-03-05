@@ -19,17 +19,24 @@ export default defineConfig(() => ({
         name: "Harshit's Notebook",
         short_name: "Notebook",
         description: "A beautiful notebook for capturing thoughts, voice, and images.",
-        theme_color: '#6366f1',
+        theme_color: '#4f46e5',
+        background_color: '#ffffff',
+        display: "standalone",
+        orientation: "portrait",
+        scope: "/",
+        start_url: "/",
         icons: [
           {
             src: 'placeholder.svg',
             sizes: '192x192',
-            type: 'image/svg+xml'
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
           },
           {
             src: 'placeholder.svg',
             sizes: '512x512',
-            type: 'image/svg+xml'
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
           }
         ]
       }
