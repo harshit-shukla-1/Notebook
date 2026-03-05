@@ -19,9 +19,8 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
-    // For this app, we'll use usernames by mapping them to internal emails
-    // Ravan -> ravan@notebook.com
-    const email = `${username.toLowerCase()}@notebook.com`;
+    // Map username to internal email system
+    const email = `${username.toLowerCase().trim()}@notebook.com`;
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -29,10 +28,10 @@ const Login = () => {
     });
 
     if (error) {
-      showError("Invalid credentials. Try Ravan/lanka or harshit/Harshit1@");
+      showError("Authentication failed. Please check your credentials.");
       setLoading(false);
     } else {
-      showSuccess("Welcome back!");
+      showSuccess("Access granted.");
       navigate('/');
     }
   };
@@ -46,14 +45,14 @@ const Login = () => {
             <ShieldAlert className="text-indigo-600" size={32} />
           </div>
           <CardTitle className="text-2xl font-black">Notebook Access</CardTitle>
-          <CardDescription>Enter your credentials to manage your notes</CardDescription>
+          <CardDescription>Enter your credentials to continue</CardDescription>
         </CardHeader>
         <CardContent className="p-8">
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <Input
                 type="text"
-                placeholder="Username (e.g. Ravan)"
+                placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -75,12 +74,12 @@ const Login = () => {
               className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold shadow-lg shadow-indigo-100" 
               disabled={loading}
             >
-              {loading ? "Authenticating..." : <><LogIn className="mr-2" size={18} /> Login</>}
+              {loading ? "Verifying..." : <><LogIn className="mr-2" size={18} /> Login</>}
             </Button>
           </form>
           <div className="mt-8 pt-6 border-t border-dashed text-center">
             <p className="text-xs text-muted-foreground">
-              Restricted area. Unauthorized access is logged.
+              Restricted area. Unauthorized access attempts are monitored.
             </p>
           </div>
         </CardContent>
