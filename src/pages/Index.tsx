@@ -5,7 +5,7 @@ import CreateNoteDialog from '../components/CreateNoteDialog';
 import Sidebar from '../components/Sidebar';
 import AddHierarchyDialog from '../components/AddHierarchyDialog';
 import { Input } from "@/components/ui/input";
-import { Search, Sparkles, BookOpen } from "lucide-react";
+import { Search, Sparkles, BookOpen, Inbox } from "lucide-react";
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Index = () => {
@@ -22,7 +22,7 @@ const Index = () => {
   const filteredNotes = notes.filter(n => {
     const matchesSearch = n.title.toLowerCase().includes(search.toLowerCase()) || 
                          n.content.toLowerCase().includes(search.toLowerCase());
-    const matchesProject = activeProjectId ? n.projectId === activeProjectId : true;
+    const matchesProject = activeProjectId ? n.projectId === activeProjectId : !n.projectId;
     return matchesSearch && matchesProject;
   });
 
@@ -45,15 +45,17 @@ const Index = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <header className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-indigo-50 dark:border-zinc-800 px-8 py-6">
-          <div className="max-w-5xl mx-auto flex items-center justify-between mb-8">
+          <div className="max-w-5xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200">
-                <BookOpen className="text-white" size={20} />
+                {activeProjectId ? <BookOpen className="text-white" size={20} /> : <Inbox className="text-white" size={20} />}
               </div>
               <div>
-                <h1 className="text-2xl font-black tracking-tight text-indigo-950 dark:text-white leading-none">Harshit's Notebook</h1>
+                <h1 className="text-2xl font-black tracking-tight text-indigo-950 dark:text-white leading-none">
+                  {activeProjectId ? activeProject?.name : "Inbox / Quick Notes"}
+                </h1>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-500/60 mt-1">
-                  {activeProject ? activeProject.name : 'All Projects'}
+                  Harshit's Notebook
                 </p>
               </div>
             </div>
@@ -76,13 +78,13 @@ const Index = () => {
             {filteredNotes.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 text-center">
                 <div className="w-24 h-24 bg-indigo-50 dark:bg-zinc-900 rounded-[40px] flex items-center justify-center mb-6">
-                  <Sparkles className="text-indigo-200 dark:text-zinc-700" size={40} />
+                  {activeProjectId ? <Sparkles className="text-indigo-200 dark:text-zinc-700" size={40} /> : <Inbox className="text-indigo-200 dark:text-zinc-700" size={40} />}
                 </div>
                 <h3 className="text-xl font-bold mb-2">
-                  {activeProjectId ? 'No notes in this project' : 'Select a project to start'}
+                  No notes found
                 </h3>
                 <p className="text-muted-foreground max-w-[250px]">
-                  {activeProjectId ? 'Add your first notebook entry here.' : 'Your hierarchy is ready. Create a note to begin.'}
+                  {activeProjectId ? 'Add your first project-specific entry here.' : 'Capture a quick thought or an uncategorized note.'}
                 </p>
               </div>
             ) : (
@@ -98,11 +100,9 @@ const Index = () => {
         </main>
       </div>
 
-      {activeProjectId && (
-        <CreateNoteDialog 
-          onAddNote={(note) => addNote({ ...note, projectId: activeProjectId })} 
-        />
-      )}
+      <CreateNoteDialog 
+        onAddNote={(note) => addNote({ ...note, projectId: activeProjectId || undefined })} 
+      />
 
       <AddHierarchyDialog 
         open={folderDialogOpen}

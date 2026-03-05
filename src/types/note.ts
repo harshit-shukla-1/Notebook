@@ -15,7 +15,7 @@ export interface Project {
 
 export interface Note {
   id: string;
-  projectId: string;
+  projectId?: string; // Optional to support notes outside projects
   type: NoteType;
   title: string;
   content: string;
