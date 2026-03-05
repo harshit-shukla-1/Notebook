@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Folder as FolderIcon, ChevronRight, ChevronDown, Plus, Package, Inbox, MoreVertical, Trash2, Edit2 } from 'lucide-react';
+import { Folder as FolderIcon, ChevronRight, ChevronDown, Plus, Package, Inbox, MoreVertical, Trash2, Edit2, Shield, LogOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Folder, Project } from '../types/note';
 import { cn } from '@/lib/utils';
+import { useAuth } from './AuthProvider';
+import { useNavigate } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,6 +42,8 @@ const Sidebar = ({
   className
 }: SidebarProps) => {
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
+  const { isAdmin, signOut, profile } = useAuth();
+  const navigate = useNavigate();
 
   const toggleFolder = (id: string) => {
     setExpandedFolders(prev => ({ 
@@ -170,6 +174,36 @@ const Sidebar = ({
             <p className="text-xs text-muted-foreground leading-relaxed">Create your first folder to start organizing your work.</p>
           </div>
         )}
+      </div>
+
+      <div className="pt-4 border-t border-indigo-50 dark:border-zinc-800 space-y-2">
+        <div className="px-3 py-2 flex items-center gap-3 bg-secondary/30 rounded-2xl mb-2">
+          <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-black">
+            {profile?.username?.[0] || 'U'}
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-black truncate">{profile?.username || 'User'}</p>
+            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{profile?.role}</p>
+          </div>
+        </div>
+
+        {isAdmin && (
+          <button
+            onClick={() => navigate('/admin')}
+            className="w-full flex items-center gap-3 p-3 rounded-2xl text-xs font-bold text-indigo-600 hover:bg-indigo-50 transition-all"
+          >
+            <Shield size={16} />
+            Admin Panel
+          </button>
+        )}
+        
+        <button
+          onClick={signOut}
+          className="w-full flex items-center gap-3 p-3 rounded-2xl text-xs font-bold text-destructive hover:bg-destructive/10 transition-all"
+        >
+          <LogOut size={16} />
+          Logout
+        </button>
       </div>
     </div>
   );
