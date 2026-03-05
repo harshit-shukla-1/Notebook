@@ -19,6 +19,11 @@ const ProtectedRoute = ({ children, adminOnly = false }: { children: React.React
   if (!user) return <Navigate to="/login" />;
   if (adminOnly && !isAdmin) return <Navigate to="/" />;
   
+  // If user is admin and landing on the root page, redirect to admin panel
+  if (!adminOnly && isAdmin && window.location.pathname === '/') {
+    return <Navigate to="/admin" />;
+  }
+  
   return <>{children}</>;
 };
 

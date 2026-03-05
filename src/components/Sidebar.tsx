@@ -1,188 +1,38 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Folder as FolderIcon, ChevronRight, ChevronDown, Plus, Package, Inbox, MoreVertical, Trash2, Edit2, Shield, LogOut } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Folder, Project } from '../types/note';
+import React from 'react';
+import { LogOut, Shield, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from './AuthProvider';
 import { useNavigate } from 'react-router-dom';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 interface SidebarProps {
-  folders: Folder[];
-  projects: Project[];
-  activeProjectId: string | null;
-  onSelectProject: (id: string | null) => void;
-  onAddFolder: () => void;
-  onEditFolder: (folder: Folder) => void;
-  onDeleteFolder: (id: string) => void;
-  onAddProject: (folderId: string) => void;
-  onEditProject: (project: Project) => void;
-  onDeleteProject: (id: string) => void;
   className?: string;
 }
 
-const Sidebar = ({ 
-  folders, 
-  projects, 
-  activeProjectId, 
-  onSelectProject, 
-  onAddFolder, 
-  onEditFolder,
-  onDeleteFolder,
-  onAddProject,
-  onEditProject,
-  onDeleteProject,
-  className
-}: SidebarProps) => {
-  const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
+const Sidebar = ({ className }: SidebarProps) => {
   const { isAdmin, signOut, profile } = useAuth();
   const navigate = useNavigate();
 
-  const toggleFolder = (id: string) => {
-    setExpandedFolders(prev => ({ 
-      ...prev, 
-      [id]: !prev[id] 
-    }));
-  };
-
   return (
-    <div className={cn("w-full h-full bg-white dark:bg-zinc-950 flex flex-col p-4 gap-6", className)}>
-      <div className="flex items-center justify-between px-2">
-        <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Library</h2>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="h-8 w-8 hover:bg-indigo-50 dark:hover:bg-zinc-800 rounded-xl" 
-          onClick={onAddFolder}
-        >
-          <Plus size={16} />
-        </Button>
-      </div>
-
-      <div className="flex-1 overflow-y-auto space-y-4">
-        <button
-          onClick={() => onSelectProject(null)}
-          className={cn(
-            "w-full flex items-center gap-3 p-3 rounded-2xl text-sm transition-all",
-            activeProjectId === null 
-              ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" 
-              : "hover:bg-secondary/50 text-muted-foreground font-semibold"
-          )}
-        >
-          <Inbox size={18} className={activeProjectId === null ? "text-white" : "text-indigo-500"} />
-          <span className="flex-1 text-left">Inbox / Quick Notes</span>
-        </button>
-
-        <div className="space-y-2">
-          {folders.map(folder => (
-            <div key={folder.id} className="space-y-1">
-              <div
-                className="w-full flex items-center gap-2 p-2.5 hover:bg-secondary/50 rounded-2xl transition-colors text-sm font-semibold group cursor-pointer"
-                onClick={() => toggleFolder(folder.id)}
-              >
-                <div className="text-muted-foreground">
-                  {expandedFolders[folder.id] ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                </div>
-                <FolderIcon size={18} className="text-indigo-500" />
-                <span className="flex-1 text-left truncate">{folder.name}</span>
-                
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className="p-1 hover:bg-indigo-100 dark:hover:bg-zinc-700 rounded-lg">
-                        <MoreVertical size={14} className="text-muted-foreground" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="rounded-xl">
-                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEditFolder(folder); }}>
-                        <Edit2 size={14} className="mr-2" /> Rename
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); onDeleteFolder(folder.id); }}>
-                        <Trash2 size={14} className="mr-2" /> Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <button 
-                    className="p-1 hover:bg-indigo-100 dark:hover:bg-zinc-700 rounded-lg" 
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      onAddProject(folder.id); 
-                    }}
-                  >
-                    <Plus size={14} className="text-indigo-600" />
-                  </button>
-                </div>
-              </div>
-
-              {expandedFolders[folder.id] && (
-                <div className="ml-5 space-y-1 border-l-2 border-indigo-50 dark:border-zinc-800 pl-3">
-                  {projects.filter(p => p.folderId === folder.id).map(project => (
-                    <div 
-                      key={project.id}
-                      className="group flex items-center"
-                    >
-                      <button
-                        onClick={() => onSelectProject(project.id)}
-                        className={cn(
-                          "flex-1 flex items-center gap-3 p-2.5 rounded-xl text-xs transition-all",
-                          activeProjectId === project.id 
-                            ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" 
-                            : "hover:bg-secondary/50 text-muted-foreground"
-                        )}
-                      >
-                        <Package size={16} />
-                        <span className="truncate font-medium">{project.name}</span>
-                      </button>
-
-                      <div className="flex items-center gap-2 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                         <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button className="p-1 hover:bg-indigo-100 dark:hover:bg-zinc-700 rounded-lg">
-                              <MoreVertical size={14} className="text-muted-foreground" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="rounded-xl">
-                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEditProject(project); }}>
-                              <Edit2 size={14} className="mr-2" /> Rename
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); onDeleteProject(project.id); }}>
-                              <Trash2 size={14} className="mr-2" /> Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-                  ))}
-                  {projects.filter(p => p.folderId === folder.id).length === 0 && (
-                    <p className="text-[10px] text-muted-foreground/50 py-2 pl-7 italic">No projects yet</p>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {folders.length === 0 && (
-          <div className="text-center py-10 px-6 border-2 border-dashed border-muted-foreground/10 rounded-[32px]">
-            <p className="text-xs text-muted-foreground leading-relaxed">Create your first folder to start organizing your work.</p>
-          </div>
-        )}
+    <div className={cn("w-full h-full bg-white dark:bg-zinc-950 flex flex-col p-4", className)}>
+      <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
+         <div className="w-20 h-20 bg-indigo-50 dark:bg-zinc-900 rounded-[32px] flex items-center justify-center mb-4">
+            <User className="text-indigo-200 dark:text-zinc-700" size={40} />
+         </div>
+         <h2 className="text-lg font-black text-indigo-950 dark:text-white">Notebook</h2>
+         <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-500/60 mt-1">
+            Personal Space
+         </p>
       </div>
 
       <div className="pt-4 border-t border-indigo-50 dark:border-zinc-800 space-y-2">
-        <div className="px-3 py-2 flex items-center gap-3 bg-secondary/30 rounded-2xl mb-2">
-          <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-black">
+        <div className="px-3 py-3 flex items-center gap-3 bg-secondary/30 rounded-2xl mb-2">
+          <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-sm font-black shadow-lg shadow-indigo-100">
             {profile?.username?.[0] || 'U'}
           </div>
-          <div className="min-w-0">
-            <p className="text-xs font-black truncate">{profile?.username || 'User'}</p>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-black truncate text-indigo-950 dark:text-white">{profile?.username || 'User'}</p>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{profile?.role}</p>
           </div>
         </div>
@@ -190,10 +40,10 @@ const Sidebar = ({
         {isAdmin && (
           <button
             onClick={() => navigate('/admin')}
-            className="w-full flex items-center gap-3 p-3 rounded-2xl text-xs font-bold text-indigo-600 hover:bg-indigo-50 transition-all"
+            className="w-full flex items-center gap-3 p-3 rounded-2xl text-xs font-bold text-indigo-600 hover:bg-indigo-50 dark:hover:bg-zinc-900 transition-all"
           >
             <Shield size={16} />
-            Admin Panel
+            Command Center
           </button>
         )}
         
