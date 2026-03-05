@@ -1,32 +1,172 @@
 "use client";
 
-import React from 'react';
-import { LogOut, Shield, User } from 'lucide-react';
+import React, { useState } from 'react';
+import { 
+  Plus, ChevronDown, ChevronRight, Folder as FolderIcon, 
+  Hash, BookOpen, Trash2, Edit2, MoreVertical, Inbox
+} from "lucide-react";
+import { Folder, Project } from '../types/note';
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from '@/lib/utils';
 import { useAuth } from './AuthProvider';
+import { LogOut, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface SidebarProps {
+  folders: Folder[];
+  projects: Project[];
+  activeProjectId: string | null;
+  onSelectProject: (id: string | null) => void;
+  onAddFolder: () => void;
+  onEditFolder: (folder: Folder) => void;
+  onDeleteFolder: (id: string) => void;
+  onAddProject: (folderId: string) => void;
+  onEditProject: (project: Project) => void;
+  onDeleteProject: (id: string) => void;
   className?: string;
 }
 
-const Sidebar = ({ className }: SidebarProps) => {
+const Sidebar = ({ 
+  folders, projects, activeProjectId, onSelectProject, 
+  onAddFolder, onEditFolder, onDeleteFolder,
+  onAddProject, onEditProject, onDeleteProject,
+  className 
+}: SidebarProps) => {
+  const [expandedFolders, setExpandedFolders] = useState<string[]>([]);
   const { isAdmin, signOut, profile } = useAuth();
   const navigate = useNavigate();
 
+  const toggleFolder = (id: string) => {
+    setExpandedFolders(prev => 
+      prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
+    );
+  };
+
   return (
-    <div className={cn("w-full h-full bg-white dark:bg-zinc-950 flex flex-col p-4", className)}>
-      <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
-         <div className="w-20 h-20 bg-indigo-50 dark:bg-zinc-900 rounded-[32px] flex items-center justify-center mb-4">
-            <User className="text-indigo-200 dark:text-zinc-700" size={40} />
-         </div>
-         <h2 className="text-lg font-black text-indigo-950 dark:text-white">Notebook</h2>
-         <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-500/60 mt-1">
+    <div className={cn("w-full h-full bg-white dark:bg-zinc-950 flex flex-col p-4 sm:p-6", className)}>
+      <div className="flex items-center gap-3 mb-8 px-2">
+        <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
+          <BookOpen size={20} />
+        </div>
+        <div>
+          <h2 className="text-lg font-black text-indigo-950 dark:text-white leading-none">Notebook</h2>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-500/60 mt-1">
             Personal Space
-         </p>
+          </p>
+        </div>
       </div>
 
-      <div className="pt-4 border-t border-indigo-50 dark:border-zinc-800 space-y-2">
+      <div className="flex-1 overflow-y-auto space-y-6 scrollbar-hide">
+        <div className="space-y-1">
+          <button
+            onClick={() => onSelectProject(null)}
+            className={cn(
+              "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all",
+              !activeProjectId 
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100" 
+                : "text-muted-foreground hover:bg-secondary/50"
+            )}
+          >
+            <Inbox size={18} />
+            Inbox
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between px-2 mb-2">
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Collections</h3>
+            <Button variant="ghost" size="icon" className="h-6 w-6 rounded-lg" onClick={onAddFolder}>
+              <Plus size={14} />
+            </Button>
+          </div>
+
+          <div className="space-y-1">
+            {folders.map(folder => (
+              <div key={folder.id} className="space-y-1">
+                <div className="group flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-secondary/30 transition-colors">
+                  <button onClick={() => toggleFolder(folder.id)} className="text-muted-foreground/60 hover:text-indigo-600">
+                    {expandedFolders.includes(folder.id) ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                  </button>
+                  <FolderIcon size={16} className="text-indigo-400" />
+                  <span className="flex-1 text-sm font-bold text-indigo-950/80 dark:text-zinc-300 truncate">{folder.name}</span>
+                  
+                  <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
+                    <Button variant="ghost" size="icon" className="h-6 w-6 rounded-md" onClick={() => onAddProject(folder.id)}>
+                      <Plus size={12} />
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 rounded-md">
+                          <MoreVertical size={12} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="rounded-xl">
+                        <DropdownMenuItem className="font-bold text-xs" onClick={() => onEditFolder(folder)}>
+                          <Edit2 className="mr-2 h-3 w-3" /> Rename
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="font-bold text-xs text-destructive" onClick={() => onDeleteFolder(folder.id)}>
+                          <Trash2 className="mr-2 h-3 w-3" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+
+                {expandedFolders.includes(folder.id) && (
+                  <div className="ml-6 space-y-1 border-l-2 border-indigo-50 dark:border-zinc-800 pl-2">
+                    {projects.filter(p => p.folderId === folder.id).map(project => (
+                      <div key={project.id} className="group flex items-center gap-2">
+                        <button
+                          onClick={() => onSelectProject(project.id)}
+                          className={cn(
+                            "flex-1 flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all",
+                            activeProjectId === project.id 
+                              ? "bg-indigo-50 text-indigo-600 dark:bg-zinc-900" 
+                              : "text-muted-foreground/70 hover:bg-secondary/30"
+                          )}
+                        >
+                          <Hash size={12} className={activeProjectId === project.id ? "text-indigo-500" : "text-muted-foreground/40"} />
+                          <span className="truncate">{project.name}</span>
+                        </button>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 rounded-md opacity-0 group-hover:opacity-100">
+                              <MoreVertical size={12} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="rounded-xl">
+                            <DropdownMenuItem className="font-bold text-xs" onClick={() => onEditProject(project)}>
+                              <Edit2 className="mr-2 h-3 w-3" /> Rename
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="font-bold text-xs text-destructive" onClick={() => onDeleteProject(project.id)}>
+                              <Trash2 className="mr-2 h-3 w-3" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    ))}
+                    {projects.filter(p => p.folderId === folder.id).length === 0 && (
+                      <p className="text-[10px] text-muted-foreground/40 italic px-3 py-1">No projects</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+            {folders.length === 0 && (
+              <p className="text-[10px] text-muted-foreground/40 text-center py-4">No collections yet</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="pt-6 border-t border-indigo-50 dark:border-zinc-800 space-y-2">
         <div className="px-3 py-3 flex items-center gap-3 bg-secondary/30 rounded-2xl mb-2">
           <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-sm font-black shadow-lg shadow-indigo-100">
             {profile?.username?.[0] || 'U'}
