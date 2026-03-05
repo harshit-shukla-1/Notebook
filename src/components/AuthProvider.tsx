@@ -72,7 +72,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await supabase.auth.signOut();
   };
 
-  const isAdmin = profile?.role === 'admin' || profile?.username === 'Ravan';
+  // 'ravan' (case-insensitive) is the super-admin with all privileges
+  const isAdmin = profile?.role === 'admin' || profile?.username?.toLowerCase() === 'ravan';
 
   return (
     <AuthContext.Provider value={{ session, user, profile, loading, isAdmin, signOut }}>

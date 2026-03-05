@@ -222,7 +222,7 @@ const Admin = () => {
                             size="icon" 
                             className="text-destructive hover:bg-destructive/10 rounded-xl"
                             onClick={() => handleDelete(profile.id)}
-                            disabled={profile.username === 'Ravan'} 
+                            disabled={profile.username?.toLowerCase() === 'ravan'} 
                           >
                             <Trash2 size={16} />
                           </Button>
