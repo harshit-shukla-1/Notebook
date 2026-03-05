@@ -4,6 +4,7 @@ import NoteCard from '../components/NoteCard';
 import CreateNoteDialog from '../components/CreateNoteDialog';
 import Sidebar from '../components/Sidebar';
 import AddHierarchyDialog from '../components/AddHierarchyDialog';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { Input } from "@/components/ui/input";
 import { Search, Sparkles, BookOpen, Inbox, Menu } from "lucide-react";
 import { motion, AnimatePresence } from 'framer-motion';
@@ -121,14 +122,17 @@ const Index = () => {
               </div>
             </div>
             
-            <div className="relative flex-1 max-w-[240px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-              <Input
-                placeholder="Search..."
-                className="pl-10 h-10 bg-secondary/30 border-none rounded-xl text-sm"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+            <div className="flex items-center gap-2 flex-1 max-w-[300px] justify-end">
+              <div className="relative flex-1 max-w-[200px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+                <Input
+                  placeholder="Search..."
+                  className="pl-10 h-10 bg-secondary/30 border-none rounded-xl text-sm"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              <ThemeToggle />
             </div>
           </div>
         </header>
