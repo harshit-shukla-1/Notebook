@@ -53,38 +53,38 @@ const CreateNoteDialog = ({ onAddNote }: CreateNoteDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-2xl bg-indigo-600 hover:bg-indigo-700 transition-all hover:scale-110 active:scale-95 z-50 p-0">
-          <Plus size={32} />
+        <Button className="fixed bottom-6 right-6 h-14 w-14 sm:bottom-8 sm:right-8 sm:h-16 sm:w-16 rounded-full shadow-2xl bg-indigo-600 hover:bg-indigo-700 transition-all hover:scale-110 active:scale-95 z-50 p-0">
+          <Plus className="w-8 h-8" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] rounded-[32px] border-none p-0 overflow-hidden">
-        <DialogHeader className="p-6 pb-0">
-          <DialogTitle className="text-2xl font-black flex items-center gap-2">
+      <DialogContent className="w-[95vw] max-w-[500px] rounded-[24px] sm:rounded-[32px] border-none p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="p-4 sm:p-6 pb-0">
+          <DialogTitle className="text-xl sm:text-2xl font-black flex items-center gap-2">
             <Sparkles className="text-indigo-500" />
             Capture Moment
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="p-6 pt-2">
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as NoteType)} className="mb-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 pt-2">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as NoteType)} className="mb-4 sm:mb-6">
             <TabsList className="grid grid-cols-3 bg-secondary/50 p-1 rounded-2xl h-12">
-              <TabsTrigger value="text" className="rounded-xl flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                <Type size={16} /> Text
+              <TabsTrigger value="text" className="rounded-xl flex items-center justify-center gap-1 sm:gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm">
+                <Type size={16} /> <span className="hidden xs:inline">Text</span>
               </TabsTrigger>
-              <TabsTrigger value="image" className="rounded-xl flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                <ImageIcon size={16} /> Image
+              <TabsTrigger value="image" className="rounded-xl flex items-center justify-center gap-1 sm:gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm">
+                <ImageIcon size={16} /> <span className="hidden xs:inline">Image</span>
               </TabsTrigger>
-              <TabsTrigger value="voice" className="rounded-xl flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                <Mic size={16} /> Voice
+              <TabsTrigger value="voice" className="rounded-xl flex items-center justify-center gap-1 sm:gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm">
+                <Mic size={16} /> <span className="hidden xs:inline">Voice</span>
               </TabsTrigger>
             </TabsList>
 
-            <div className="space-y-4 py-4">
+            <div className="space-y-4 py-2 sm:py-4">
               <Input
                 placeholder="Title (optional)"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="rounded-xl border-none bg-secondary/30 h-12 text-lg font-bold focus-visible:ring-indigo-500/30"
+                className="rounded-xl border-none bg-secondary/30 h-11 sm:h-12 text-base sm:text-lg font-bold focus-visible:ring-indigo-500/30"
               />
 
               <TabsContent value="text" className="m-0">
@@ -92,7 +92,7 @@ const CreateNoteDialog = ({ onAddNote }: CreateNoteDialogProps) => {
                   placeholder="What's on your mind?"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  className="min-h-[150px] rounded-2xl border-none bg-secondary/30 resize-none focus-visible:ring-indigo-500/30 text-base"
+                  className="min-h-[120px] sm:min-h-[150px] rounded-2xl border-none bg-secondary/30 resize-none focus-visible:ring-indigo-500/30 text-sm sm:text-base"
                 />
               </TabsContent>
 
@@ -102,7 +102,7 @@ const CreateNoteDialog = ({ onAddNote }: CreateNoteDialogProps) => {
                   placeholder="Add a description..."
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  className="mt-4 min-h-[100px] rounded-2xl border-none bg-secondary/30 resize-none focus-visible:ring-indigo-500/30"
+                  className="mt-4 min-h-[80px] sm:min-h-[100px] rounded-2xl border-none bg-secondary/30 resize-none focus-visible:ring-indigo-500/30 text-sm sm:text-base"
                 />
               </TabsContent>
 
@@ -112,14 +112,14 @@ const CreateNoteDialog = ({ onAddNote }: CreateNoteDialogProps) => {
                   placeholder="Add some notes about this audio..."
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  className="mt-4 min-h-[100px] rounded-2xl border-none bg-secondary/30 resize-none focus-visible:ring-indigo-500/30"
+                  className="mt-4 min-h-[80px] sm:min-h-[100px] rounded-2xl border-none bg-secondary/30 resize-none focus-visible:ring-indigo-500/30 text-sm sm:text-base"
                 />
               </TabsContent>
             </div>
           </Tabs>
 
-          <div className="flex items-center justify-between mt-6">
-            <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 sm:mt-6">
+            <div className="flex gap-2.5">
               {COLORS.map(color => (
                 <button
                   key={color}
@@ -130,7 +130,7 @@ const CreateNoteDialog = ({ onAddNote }: CreateNoteDialogProps) => {
                 />
               ))}
             </div>
-            <Button type="submit" className="rounded-2xl px-8 h-12 bg-indigo-600 hover:bg-indigo-700 font-bold">
+            <Button type="submit" className="w-full sm:w-auto rounded-2xl px-8 h-12 bg-indigo-600 hover:bg-indigo-700 font-bold shadow-lg shadow-indigo-200">
               Save Note
             </Button>
           </div>
