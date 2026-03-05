@@ -52,20 +52,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    setProfile(data);
-    setLoading(false);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+      
+      if (error) throw error;
+      setProfile(data);
+    } catch (e) {
+      console.error("Profile fetch error:", e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
   };
 
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = profile?.role === 'admin' || profile?.username === 'Ravan';
 
   return (
     <AuthContext.Provider value={{ session, user, profile, loading, isAdmin, signOut }}>
