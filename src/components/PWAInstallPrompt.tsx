@@ -11,34 +11,23 @@ const PWAInstallPrompt = () => {
 
   useEffect(() => {
     const handler = (e: Event) => {
-      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
-      // Stash the event so it can be triggered later.
       setDeferredPrompt(e);
       setIsVisible(true);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
-
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
-
-    // Show the install prompt
     deferredPrompt.prompt();
-
-    // Wait for the user to respond to the prompt
     const { outcome } = await deferredPrompt.userChoice;
     
     if (outcome === 'accepted') {
       console.log('User accepted the PWA install');
-    } else {
-      console.log('User dismissed the PWA install');
     }
-
-    // We've used the prompt, and can't use it again
     setDeferredPrompt(null);
     setIsVisible(false);
   };
@@ -48,26 +37,26 @@ const PWAInstallPrompt = () => {
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ y: 100, opacity: 0 }}
+        initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
-        className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-md"
+        exit={{ y: 50, opacity: 0 }}
+        className="fixed bottom-24 left-0 right-0 px-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[100] w-full max-w-lg"
       >
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-indigo-100 dark:border-zinc-800 p-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shrink-0">
-              <Download size={20} />
-            </div>
-            <div>
-              <p className="text-sm font-black text-indigo-950 dark:text-white">Install Notebook</p>
-              <p className="text-xs text-muted-foreground">Access your notes faster</p>
-            </div>
+        <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-indigo-100 dark:border-zinc-800 p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
+          <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg shadow-indigo-200/50">
+            <Download size={22} />
           </div>
-          <div className="flex items-center gap-2">
+          
+          <div className="flex-1 min-w-0">
+            <p className="text-sm sm:text-base font-black text-indigo-950 dark:text-white truncate">Install App</p>
+            <p className="text-[11px] sm:text-xs text-muted-foreground font-medium truncate">Quick access from your home screen</p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
             <Button 
               size="sm" 
               onClick={handleInstallClick}
-              className="rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold"
+              className="rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold px-4 h-9"
             >
               Install
             </Button>
@@ -75,9 +64,9 @@ const PWAInstallPrompt = () => {
               size="icon" 
               variant="ghost" 
               onClick={() => setIsVisible(false)}
-              className="h-8 w-8 rounded-lg"
+              className="h-9 w-9 rounded-xl hover:bg-secondary"
             >
-              <X size={16} />
+              <X size={18} />
             </Button>
           </div>
         </div>
