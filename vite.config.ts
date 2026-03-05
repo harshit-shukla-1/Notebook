@@ -25,26 +25,26 @@ export default defineConfig(() => ({
         enabled: true,
         type: 'module',
       },
-      includeAssets: ['favicon.ico', 'robots.txt', 'placeholder.svg'],
+      includeAssets: ['favicon.ico', 'robots.txt', 'logo.svg'],
       manifest: {
         name: "Harshit's Notebook",
         short_name: "Notebook",
         description: "A beautiful notebook for capturing thoughts, voice, and images.",
-        theme_color: '#4f46e5',
-        background_color: '#ffffff',
+        theme_color: '#020617',
+        background_color: '#020617',
         display: "standalone",
         orientation: "portrait",
         scope: "/",
         start_url: "/",
         icons: [
           {
-            src: 'placeholder.svg',
+            src: 'logo.svg',
             sizes: '192x192',
             type: 'image/svg+xml',
             purpose: 'any maskable'
           },
           {
-            src: 'placeholder.svg',
+            src: 'logo.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
             purpose: 'any maskable'

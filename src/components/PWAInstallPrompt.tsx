@@ -43,8 +43,8 @@ const PWAInstallPrompt = () => {
         className="fixed bottom-24 left-0 right-0 px-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[100] w-full max-w-lg"
       >
         <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-indigo-100 dark:border-zinc-800 p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
-          <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg shadow-indigo-200/50">
-            <Download size={22} />
+          <div className="w-12 h-12 bg-indigo-950 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-200/20 border border-amber-500/20 overflow-hidden">
+            <img src="/logo.svg" alt="Logo" className="w-8 h-8" />
           </div>
           
           <div className="flex-1 min-w-0">
