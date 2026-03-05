@@ -40,7 +40,7 @@ const Sidebar = ({
   className 
 }: SidebarProps) => {
   const [expandedFolders, setExpandedFolders] = useState<string[]>([]);
-  const { isAdmin, signOut, profile } = useAuth();
+  const { isAdmin, signOut, profile, user } = useAuth();
   const navigate = useNavigate();
 
   const toggleFolder = (id: string) => {
@@ -48,6 +48,10 @@ const Sidebar = ({
       prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
     );
   };
+
+  // Get display name from profile, metadata, or email
+  const displayName = profile?.username || user?.user_metadata?.username || user?.email?.split('@')[0] || 'User';
+  const displayRole = profile?.role || user?.user_metadata?.role || 'User';
 
   return (
     <div className={cn("w-full h-full bg-white dark:bg-zinc-950 flex flex-col p-4 sm:p-6", className)}>
@@ -170,11 +174,11 @@ const Sidebar = ({
       <div className="pt-6 border-t border-indigo-50 dark:border-zinc-800 space-y-2">
         <div className="px-3 py-3 flex items-center gap-3 bg-secondary/30 rounded-2xl mb-2">
           <div className="w-10 h-10 rounded-2xl bg-indigo-950 flex items-center justify-center text-amber-500 text-sm font-black shadow-lg shadow-amber-200/20 border border-amber-500/20">
-            {profile?.username?.[0] || 'U'}
+            {displayName[0].toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-black truncate text-indigo-950 dark:text-white">{profile?.username || 'User'}</p>
-            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{profile?.role}</p>
+            <p className="text-sm font-black truncate text-indigo-950 dark:text-white capitalize">{displayName}</p>
+            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{displayRole}</p>
           </div>
         </div>
 
