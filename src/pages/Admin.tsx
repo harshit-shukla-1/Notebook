@@ -11,7 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, Trash2, ShieldCheck, UserPlus, LogOut, Edit2, Search, Lock, Eye, EyeOff } from "lucide-react";
+import Logo from '@/components/Logo';
+import { Users, Trash2, UserPlus, LogOut, Edit2, Search, Eye, EyeOff } from "lucide-react";
 import { showError, showSuccess } from '@/utils/toast';
 
 const Admin = () => {
@@ -47,7 +48,7 @@ const Admin = () => {
       .select('*')
       .order('username', { ascending: true });
 
-    if (error) showError("Failed to fetch profiles");
+    if (error) showError("Failed to fetch kingdom records");
     else setProfiles(data || []);
     setLoading(false);
   };
@@ -56,9 +57,9 @@ const Admin = () => {
     if (!confirm("Are you sure you want to remove this profile? This action is permanent.")) return;
     
     const { error } = await supabase.from('profiles').delete().eq('id', id);
-    if (error) showError("Could not remove user profile");
+    if (error) showError("Could not remove record");
     else {
-      showSuccess("User profile removed successfully");
+      showSuccess("Record removed from archives");
       fetchProfiles();
     }
   };
@@ -77,12 +78,12 @@ const Admin = () => {
 
   const handleSave = async () => {
     if (!formData.username.trim()) {
-      showError("Username is required");
+      showError("Identity is required");
       return;
     }
 
     if (!editingProfile && !formData.password.trim()) {
-      showError("Password is required for new accounts");
+      showError("Security key is required for new accounts");
       return;
     }
 
@@ -102,7 +103,7 @@ const Admin = () => {
         showError("Update failed");
         setLoading(false);
       } else {
-        showSuccess("Profile updated");
+        showSuccess("Record updated");
         setIsDialogOpen(false);
         fetchProfiles();
       }
@@ -121,11 +122,11 @@ const Admin = () => {
         if (error) throw error;
         if (data?.error) throw new Error(data.error);
 
-        showSuccess(`Account created for ${formData.username}`);
+        showSuccess(`Identity established for ${formData.username}`);
         setIsDialogOpen(false);
         fetchProfiles();
       } catch (err: any) {
-        showError(err.message || "Failed to create user");
+        showError(err.message || "Failed to create identity");
       } finally {
         setLoading(false);
       }
@@ -145,8 +146,8 @@ const Admin = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F8F9FE] dark:bg-zinc-950">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-          <p className="font-bold text-indigo-950 dark:text-white">Loading Command Center...</p>
+          <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
+          <p className="font-bold text-indigo-950 dark:text-white">Connecting to Command Center...</p>
         </div>
       </div>
     );
@@ -156,17 +157,17 @@ const Admin = () => {
     <div className="min-h-screen bg-[#F8F9FE] dark:bg-zinc-950 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 bg-white dark:bg-zinc-900 p-6 sm:p-8 rounded-[40px] shadow-xl shadow-indigo-100/20">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 bg-white dark:bg-zinc-900 p-6 sm:p-8 rounded-[40px] shadow-xl shadow-amber-500/5 border border-indigo-50 dark:border-zinc-800">
           <div className="flex items-center gap-5">
-            <div className="w-16 h-16 bg-indigo-600 rounded-[24px] flex items-center justify-center text-white shadow-lg shadow-indigo-200 cursor-pointer" onClick={() => navigate('/')}>
-              <ShieldCheck size={32} />
+            <div className="w-16 h-16 bg-indigo-950 rounded-[24px] flex items-center justify-center text-white shadow-lg shadow-amber-500/10 cursor-pointer border border-amber-500/20" onClick={() => navigate('/')}>
+              <Logo size={40} />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-black text-indigo-950 dark:text-white leading-none">
                 Command Center
               </h1>
-              <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest mt-2">
-                User Management System
+              <p className="text-amber-600 font-bold text-[10px] uppercase tracking-widest mt-2">
+                Kingdom Management Console
               </p>
             </div>
           </div>
@@ -179,20 +180,20 @@ const Admin = () => {
               <LogOut className="mr-2" size={18} /> Logout
             </Button>
             <Button 
-              className="rounded-2xl bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200 font-bold h-12 px-6 transition-all"
+              className="rounded-2xl bg-indigo-950 hover:bg-indigo-900 text-white border border-amber-500/20 shadow-lg shadow-amber-500/10 font-bold h-12 px-6 transition-all"
               onClick={() => handleOpenDialog()}
             >
-              <UserPlus className="mr-2" size={18} /> New User
+              <UserPlus className="mr-2 text-amber-500" size={18} /> New Identity
             </Button>
           </div>
         </div>
 
         {/* Filters */}
         <div className="relative group max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-indigo-600 transition-colors" size={20} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-amber-600 transition-colors" size={20} />
           <Input 
-            placeholder="Search users by name..." 
-            className="pl-12 h-14 rounded-2xl bg-white dark:bg-zinc-900 border-none shadow-sm focus-visible:ring-indigo-600/20 text-lg"
+            placeholder="Find kingdom subjects..." 
+            className="pl-12 h-14 rounded-2xl bg-white dark:bg-zinc-900 border-none shadow-sm focus-visible:ring-amber-500/20 text-lg"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -203,11 +204,11 @@ const Admin = () => {
           <CardHeader className="border-b border-indigo-50 dark:border-zinc-800 p-8 bg-secondary/10">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl font-black text-indigo-950 dark:text-white">Active Accounts</CardTitle>
-                <CardDescription className="font-medium mt-1">Manage platform access and permissions</CardDescription>
+                <CardTitle className="text-xl font-black text-indigo-950 dark:text-white">Active Identities</CardTitle>
+                <CardDescription className="font-medium mt-1">Manage kingdom access and permissions</CardDescription>
               </div>
               <div className="bg-white dark:bg-zinc-800 px-4 py-2 rounded-2xl shadow-sm border border-indigo-50 dark:border-zinc-700">
-                <span className="text-xs font-black text-indigo-600 uppercase tracking-tighter">Total: {profiles.length}</span>
+                <span className="text-xs font-black text-amber-600 uppercase tracking-tighter">Subjects: {profiles.length}</span>
               </div>
             </div>
           </CardHeader>
@@ -216,10 +217,10 @@ const Admin = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border-indigo-50 dark:border-zinc-800 hover:bg-transparent">
-                    <TableHead className="font-black px-8 py-4 text-xs uppercase tracking-widest text-muted-foreground">Username</TableHead>
-                    <TableHead className="font-black py-4 text-xs uppercase tracking-widest text-muted-foreground">Access Level</TableHead>
-                    <TableHead className="font-black py-4 text-xs uppercase tracking-widest text-muted-foreground">Last Activity</TableHead>
-                    <TableHead className="text-right font-black px-8 py-4 text-xs uppercase tracking-widest text-muted-foreground">Controls</TableHead>
+                    <TableHead className="font-black px-8 py-4 text-xs uppercase tracking-widest text-muted-foreground">Identity</TableHead>
+                    <TableHead className="font-black py-4 text-xs uppercase tracking-widest text-muted-foreground">Power Level</TableHead>
+                    <TableHead className="font-black py-4 text-xs uppercase tracking-widest text-muted-foreground">Last Seen</TableHead>
+                    <TableHead className="text-right font-black px-8 py-4 text-xs uppercase tracking-widest text-muted-foreground">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -231,8 +232,8 @@ const Admin = () => {
                       <TableCell>
                         <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${
                           profile.role === 'admin' 
-                            ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300' 
-                            : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' 
+                            : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300'
                         }`}>
                           {profile.role}
                         </span>
@@ -268,7 +269,7 @@ const Admin = () => {
                       <TableCell colSpan={4} className="h-40 text-center">
                         <div className="flex flex-col items-center justify-center gap-2">
                           <Users size={40} className="text-muted-foreground/30" />
-                          <p className="font-bold text-muted-foreground">No users found matching your search</p>
+                          <p className="font-bold text-muted-foreground">No subjects found in current archives</p>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -282,44 +283,44 @@ const Admin = () => {
 
       {/* CRUD Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="rounded-[32px] sm:max-w-[450px] p-8 border-none shadow-2xl overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-2 bg-indigo-600" />
+        <DialogContent className="rounded-[40px] sm:max-w-[450px] p-8 border-none shadow-2xl overflow-hidden bg-white dark:bg-zinc-900">
+          <div className="absolute top-0 left-0 w-full h-2 bg-indigo-950" />
           <DialogHeader>
             <DialogTitle className="text-2xl font-black text-indigo-950 dark:text-white">
-              {editingProfile ? 'Edit Account' : 'New Account'}
+              {editingProfile ? 'Edit Record' : 'New Identity'}
             </DialogTitle>
             <DialogDescription className="font-medium">
-              {editingProfile ? 'Update user details and permissions' : 'Create a new secure account with a password'}
+              {editingProfile ? 'Update kingdom records and permissions' : 'Establish a new secure identity with a key'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-6">
             <div className="space-y-2">
-              <Label htmlFor="username" className="font-black uppercase text-[10px] tracking-widest text-muted-foreground pl-1">Display Name</Label>
+              <Label htmlFor="username" className="font-black uppercase text-[10px] tracking-widest text-muted-foreground pl-1">Identity Name</Label>
               <Input
                 id="username"
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                className="rounded-2xl bg-secondary/30 border-none h-14 text-lg font-bold px-5"
+                className="rounded-2xl bg-secondary/30 border-none h-14 text-lg font-bold px-5 focus-visible:ring-amber-500/20"
                 placeholder="Enter username..."
               />
             </div>
 
             {!editingProfile && (
               <div className="space-y-2">
-                <Label htmlFor="password" className="font-black uppercase text-[10px] tracking-widest text-muted-foreground pl-1">Set Password</Label>
+                <Label htmlFor="password" className="font-black uppercase text-[10px] tracking-widest text-muted-foreground pl-1">Secret Key</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="rounded-2xl bg-secondary/30 border-none h-14 text-lg font-bold px-5 pr-12"
-                    placeholder="Enter password..."
+                    className="rounded-2xl bg-secondary/30 border-none h-14 text-lg font-bold px-5 pr-12 focus-visible:ring-amber-500/20"
+                    placeholder="Enter key..."
                   />
                   <button 
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-indigo-600 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-amber-600 transition-colors"
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
@@ -328,17 +329,17 @@ const Admin = () => {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="role" className="font-black uppercase text-[10px] tracking-widest text-muted-foreground pl-1">Access Level</Label>
+              <Label htmlFor="role" className="font-black uppercase text-[10px] tracking-widest text-muted-foreground pl-1">Power Level</Label>
               <Select 
                 value={formData.role} 
                 onValueChange={(v) => setFormData({ ...formData, role: v })}
               >
-                <SelectTrigger className="rounded-2xl bg-secondary/30 border-none h-14 text-lg font-bold px-5">
-                  <SelectValue placeholder="Select role" />
+                <SelectTrigger className="rounded-2xl bg-secondary/30 border-none h-14 text-lg font-bold px-5 focus-visible:ring-amber-500/20">
+                  <SelectValue placeholder="Select level" />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl border-none shadow-xl">
-                  <SelectItem value="user" className="font-bold py-3">Standard User</SelectItem>
-                  <SelectItem value="admin" className="font-bold py-3">Administrator</SelectItem>
+                  <SelectItem value="user" className="font-bold py-3">Subject (User)</SelectItem>
+                  <SelectItem value="admin" className="font-bold py-3">Archon (Admin)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -354,10 +355,10 @@ const Admin = () => {
             </Button>
             <Button 
               onClick={handleSave}
-              className="flex-1 rounded-2xl bg-indigo-600 hover:bg-indigo-700 h-14 font-black shadow-lg shadow-indigo-100 transition-all"
+              className="flex-1 rounded-2xl bg-indigo-950 text-white border border-amber-500/20 hover:bg-indigo-900 h-14 font-black shadow-lg shadow-amber-500/10 transition-all"
               disabled={loading}
             >
-              {loading ? 'Processing...' : 'Save Changes'}
+              {loading ? 'Processing...' : 'Secure Records'}
             </Button>
           </DialogFooter>
         </DialogContent>

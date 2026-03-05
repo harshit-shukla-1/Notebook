@@ -6,7 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogIn, ShieldAlert } from "lucide-react";
+import Logo from '@/components/Logo';
+import { LogIn } from "lucide-react";
 import { showError, showSuccess } from '@/utils/toast';
 
 const Login = () => {
@@ -28,58 +29,62 @@ const Login = () => {
     });
 
     if (error) {
-      showError("Authentication failed. Please check your credentials.");
+      showError("Authentication failed. Access Denied.");
       setLoading(false);
     } else {
-      showSuccess("Access granted.");
+      showSuccess("Welcome, King.");
       navigate('/');
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F8F9FE] dark:bg-zinc-950 p-4">
-      <Card className="w-full max-w-md border-none shadow-2xl rounded-[32px] overflow-hidden">
-        <div className="h-2 bg-indigo-600 w-full" />
-        <CardHeader className="space-y-1 text-center pt-8">
-          <div className="mx-auto w-16 h-16 bg-indigo-50 dark:bg-zinc-900 rounded-2xl flex items-center justify-center mb-4">
-            <ShieldAlert className="text-indigo-600" size={32} />
+      <Card className="w-full max-w-md border-none shadow-2xl rounded-[40px] overflow-hidden bg-white dark:bg-zinc-900">
+        <div className="h-2 bg-indigo-950 w-full relative">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-amber-500/20 via-transparent to-amber-500/20" />
+        </div>
+        <CardHeader className="space-y-1 text-center pt-10">
+          <div className="mx-auto w-20 h-20 bg-indigo-950 rounded-3xl flex items-center justify-center mb-6 shadow-xl shadow-amber-500/10 border border-amber-500/20">
+            <Logo size={48} />
           </div>
-          <CardTitle className="text-2xl font-black">Notebook Access</CardTitle>
-          <CardDescription>Enter your credentials to continue</CardDescription>
+          <CardTitle className="text-3xl font-black text-indigo-950 dark:text-white">Lanka Notebook</CardTitle>
+          <CardDescription className="font-bold text-amber-600 uppercase text-[10px] tracking-[0.2em] mt-2">
+            Kingdom Management System
+          </CardDescription>
         </CardHeader>
-        <CardContent className="p-8">
-          <form onSubmit={handleLogin} className="space-y-4">
+        <CardContent className="p-10">
+          <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-2">
               <Input
                 type="text"
-                placeholder="Username"
+                placeholder="Identity"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="rounded-xl border-none bg-secondary/50 h-12"
+                className="rounded-2xl border-none bg-secondary/50 h-14 text-lg font-bold px-6 focus-visible:ring-amber-500/20"
               />
             </div>
             <div className="space-y-2">
               <Input
                 type="password"
-                placeholder="Password"
+                placeholder="Secret Key"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="rounded-xl border-none bg-secondary/50 h-12"
+                className="rounded-2xl border-none bg-secondary/50 h-14 text-lg font-bold px-6 focus-visible:ring-amber-500/20"
               />
             </div>
             <Button 
               type="submit" 
-              className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold shadow-lg shadow-indigo-100" 
+              className="w-full h-14 rounded-2xl bg-indigo-950 hover:bg-indigo-900 text-white font-black shadow-xl shadow-amber-500/10 transition-all active:scale-[0.98] border border-amber-500/20" 
               disabled={loading}
             >
-              {loading ? "Verifying..." : <><LogIn className="mr-2" size={18} /> Login</>}
+              {loading ? "Verifying..." : <><LogIn className="mr-2 text-amber-500" size={20} /> Enter Kingdom</>}
             </Button>
           </form>
-          <div className="mt-8 pt-6 border-t border-dashed text-center">
-            <p className="text-xs text-muted-foreground">
-              Restricted area. Unauthorized access attempts are monitored.
+          <div className="mt-10 pt-8 border-t border-dashed border-indigo-50 dark:border-zinc-800 text-center">
+            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
+              Restricted Area • Monitoring Active
             </p>
           </div>
         </CardContent>

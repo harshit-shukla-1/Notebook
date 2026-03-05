@@ -5,8 +5,9 @@ import CreateNoteDialog from '../components/CreateNoteDialog';
 import Sidebar from '../components/Sidebar';
 import AddHierarchyDialog from '../components/AddHierarchyDialog';
 import { ThemeToggle } from '../components/ThemeToggle';
+import Logo from '../components/Logo';
 import { Input } from "@/components/ui/input";
-import { Search, Sparkles, BookOpen, Inbox, Menu } from "lucide-react";
+import { Search, Inbox, Menu } from "lucide-react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -109,15 +110,15 @@ const Index = () => {
                   </SheetContent>
                 </Sheet>
               )}
-              <div className="hidden xs:flex w-10 h-10 bg-indigo-600 rounded-2xl items-center justify-center shadow-lg shadow-indigo-200 shrink-0">
-                {activeProjectId ? <BookOpen className="text-white" size={20} /> : <Inbox className="text-white" size={20} />}
+              <div className="hidden xs:flex w-12 h-12 bg-indigo-950 rounded-2xl items-center justify-center shadow-lg shadow-amber-200/20 shrink-0 border border-amber-500/20">
+                <Logo size={32} />
               </div>
               <div className="min-w-0">
                 <h1 className="text-lg sm:text-2xl font-black tracking-tight text-indigo-950 dark:text-white leading-none truncate">
                   {activeProjectId ? activeProject?.name : "Inbox"}
                 </h1>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-500/60 mt-1 truncate">
-                  My Notebook
+                <p className="text-[10px] font-bold uppercase tracking-widest text-amber-600 mt-1 truncate">
+                  Lanka Notebook
                 </p>
               </div>
             </div>
@@ -141,10 +142,10 @@ const Index = () => {
           <div className="max-w-5xl mx-auto">
             {filteredNotes.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 sm:py-32 text-center">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-indigo-50 dark:bg-zinc-900 rounded-[32px] sm:rounded-[40px] flex items-center justify-center mb-6">
-                  {activeProjectId ? <Sparkles className="text-indigo-200 dark:text-zinc-700" size={32} /> : <Inbox className="text-indigo-200 dark:text-zinc-700" size={32} />}
+                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-amber-50 dark:bg-zinc-900 rounded-[32px] sm:rounded-[40px] flex items-center justify-center mb-6">
+                  <Logo size={48} />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold mb-2">No notes found</h3>
+                <h3 className="text-lg sm:text-xl font-bold mb-2">No entries in the kingdom</h3>
                 <p className="text-sm text-muted-foreground max-w-[280px]">
                   {activeProjectId ? 'Start your first project-specific entry here.' : 'Capture a quick thought or an uncategorized note.'}
                 </p>
