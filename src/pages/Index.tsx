@@ -5,13 +5,18 @@ import CreateNoteDialog from '../components/CreateNoteDialog';
 import Sidebar from '../components/Sidebar';
 import AddHierarchyDialog from '../components/AddHierarchyDialog';
 import { Input } from "@/components/ui/input";
-import { Search, Sparkles, BookOpen, Inbox } from "lucide-react";
+import { Search, Sparkles, BookOpen, Inbox, Menu } from "lucide-react";
 import { motion, AnimatePresence } from 'framer-motion';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { folders, projects, notes, addFolder, addProject, addNote, deleteNote } = useStorage();
   const [search, setSearch] = useState('');
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
+  const isMobile = useIsMobile();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Dialog states
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
@@ -31,39 +36,67 @@ const Index = () => {
     setProjectDialogOpen(true);
   };
 
+  const handleSelectProject = (id: string | null) => {
+    setActiveProjectId(id);
+    if (isMobile) setMobileMenuOpen(false);
+  };
+
   return (
     <div className="flex h-screen bg-[#F8F9FE] dark:bg-zinc-950 overflow-hidden">
-      <Sidebar 
-        folders={folders}
-        projects={projects}
-        activeProjectId={activeProjectId}
-        onSelectProject={setActiveProjectId}
-        onAddFolder={() => setFolderDialogOpen(true)}
-        onAddProject={handleAddProjectInit}
-      />
+      {/* Desktop Sidebar */}
+      {!isMobile && (
+        <Sidebar 
+          folders={folders}
+          projects={projects}
+          activeProjectId={activeProjectId}
+          onSelectProject={handleSelectProject}
+          onAddFolder={() => setFolderDialogOpen(true)}
+          onAddProject={handleAddProjectInit}
+          className="w-72 border-r border-indigo-50 dark:border-zinc-800"
+        />
+      )}
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden relative">
         {/* Header */}
-        <header className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-indigo-50 dark:border-zinc-800 px-8 py-6">
-          <div className="max-w-5xl mx-auto flex items-center justify-between">
+        <header className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-indigo-50 dark:border-zinc-800 px-4 sm:px-8 py-4 sm:py-6">
+          <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200">
+              {isMobile && (
+                <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-secondary/50">
+                      <Menu size={20} />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="p-0 w-72 border-none">
+                    <Sidebar 
+                      folders={folders}
+                      projects={projects}
+                      activeProjectId={activeProjectId}
+                      onSelectProject={handleSelectProject}
+                      onAddFolder={() => setFolderDialogOpen(true)}
+                      onAddProject={handleAddProjectInit}
+                    />
+                  </SheetContent>
+                </Sheet>
+              )}
+              <div className="hidden xs:flex w-10 h-10 bg-indigo-600 rounded-2xl items-center justify-center shadow-lg shadow-indigo-200 shrink-0">
                 {activeProjectId ? <BookOpen className="text-white" size={20} /> : <Inbox className="text-white" size={20} />}
               </div>
-              <div>
-                <h1 className="text-2xl font-black tracking-tight text-indigo-950 dark:text-white leading-none">
-                  {activeProjectId ? activeProject?.name : "Inbox / Quick Notes"}
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-2xl font-black tracking-tight text-indigo-950 dark:text-white leading-none truncate">
+                  {activeProjectId ? activeProject?.name : "Inbox"}
                 </h1>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-500/60 mt-1">
-                  Harshit's Notebook
+                <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-500/60 mt-1 truncate">
+                  My Notebook
                 </p>
               </div>
             </div>
             
-            <div className="relative w-64">
+            <div className="relative flex-1 max-w-[240px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
               <Input
-                placeholder="Search notes..."
+                placeholder="Search..."
                 className="pl-10 h-10 bg-secondary/30 border-none rounded-xl text-sm"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -73,22 +106,22 @@ const Index = () => {
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto px-8 py-8">
+        <main className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 sm:py-8">
           <div className="max-w-5xl mx-auto">
             {filteredNotes.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-24 text-center">
-                <div className="w-24 h-24 bg-indigo-50 dark:bg-zinc-900 rounded-[40px] flex items-center justify-center mb-6">
-                  {activeProjectId ? <Sparkles className="text-indigo-200 dark:text-zinc-700" size={40} /> : <Inbox className="text-indigo-200 dark:text-zinc-700" size={40} />}
+              <div className="flex flex-col items-center justify-center py-20 sm:py-32 text-center">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-indigo-50 dark:bg-zinc-900 rounded-[32px] sm:rounded-[40px] flex items-center justify-center mb-6">
+                  {activeProjectId ? <Sparkles className="text-indigo-200 dark:text-zinc-700" size={32} /> : <Inbox className="text-indigo-200 dark:text-zinc-700" size={32} />}
                 </div>
-                <h3 className="text-xl font-bold mb-2">
+                <h3 className="text-lg sm:text-xl font-bold mb-2">
                   No notes found
                 </h3>
-                <p className="text-muted-foreground max-w-[250px]">
-                  {activeProjectId ? 'Add your first project-specific entry here.' : 'Capture a quick thought or an uncategorized note.'}
+                <p className="text-sm text-muted-foreground max-w-[280px]">
+                  {activeProjectId ? 'Start your first project-specific entry here.' : 'Capture a quick thought or an uncategorized note.'}
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 <AnimatePresence mode="popLayout">
                   {filteredNotes.map((note) => (
                     <NoteCard key={note.id} note={note} onDelete={deleteNote} />
