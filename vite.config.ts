@@ -15,6 +15,12 @@ export default defineConfig(() => ({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+      },
       devOptions: {
         enabled: true,
         type: 'module',
@@ -35,13 +41,13 @@ export default defineConfig(() => ({
             src: 'placeholder.svg',
             sizes: '192x192',
             type: 'image/svg+xml',
-            purpose: 'any'
+            purpose: 'any maskable'
           },
           {
             src: 'placeholder.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
-            purpose: 'maskable'
+            purpose: 'any maskable'
           }
         ]
       }
