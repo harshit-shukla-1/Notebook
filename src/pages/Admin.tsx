@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, Trash2, ShieldCheck, UserPlus, LogOut, Edit2, Search } from "lucide-react";
+import { Users, Trash2, ShieldCheck, UserPlus, LogOut, Edit2, Search, Lock, Eye, EyeOff } from "lucide-react";
 import { showError, showSuccess } from '@/utils/toast';
 
 const Admin = () => {
@@ -21,10 +21,12 @@ const Admin = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState<any>(null);
+  const [showPassword, setShowPassword] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
     username: '',
+    password: '',
     role: 'user'
   });
 
@@ -64,11 +66,12 @@ const Admin = () => {
   const handleOpenDialog = (profile?: any) => {
     if (profile) {
       setEditingProfile(profile);
-      setFormData({ username: profile.username || '', role: profile.role || 'user' });
+      setFormData({ username: profile.username || '', password: '', role: profile.role || 'user' });
     } else {
       setEditingProfile(null);
-      setFormData({ username: '', role: 'user' });
+      setFormData({ username: '', password: '', role: 'user' });
     }
+    setShowPassword(false);
     setIsDialogOpen(true);
   };
 
@@ -77,6 +80,13 @@ const Admin = () => {
       showError("Username is required");
       return;
     }
+
+    if (!editingProfile && !formData.password.trim()) {
+      showError("Password is required for new accounts");
+      return;
+    }
+
+    setLoading(true);
 
     if (editingProfile) {
       const { error } = await supabase
@@ -88,14 +98,37 @@ const Admin = () => {
         })
         .eq('id', editingProfile.id);
 
-      if (error) showError("Update failed");
-      else {
+      if (error) {
+        showError("Update failed");
+        setLoading(false);
+      } else {
         showSuccess("Profile updated");
         setIsDialogOpen(false);
         fetchProfiles();
       }
     } else {
-      showError("New user creation requires Auth setup. Please use the signup system.");
+      // Create new user via Edge Function
+      try {
+        const { data, error } = await supabase.functions.invoke('manage-users', {
+          body: {
+            action: 'CREATE_USER',
+            username: formData.username,
+            password: formData.password,
+            role: formData.role
+          }
+        });
+
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+
+        showSuccess(`Account created for ${formData.username}`);
+        setIsDialogOpen(false);
+        fetchProfiles();
+      } catch (err: any) {
+        showError(err.message || "Failed to create user");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -108,7 +141,7 @@ const Admin = () => {
     navigate('/login');
   };
 
-  if (authLoading || loading) {
+  if (authLoading || (loading && profiles.length === 0)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F8F9FE] dark:bg-zinc-950">
         <div className="flex flex-col items-center gap-4">
@@ -125,7 +158,7 @@ const Admin = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 bg-white dark:bg-zinc-900 p-6 sm:p-8 rounded-[40px] shadow-xl shadow-indigo-100/20">
           <div className="flex items-center gap-5">
-            <div className="w-16 h-16 bg-indigo-600 rounded-[24px] flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+            <div className="w-16 h-16 bg-indigo-600 rounded-[24px] flex items-center justify-center text-white shadow-lg shadow-indigo-200 cursor-pointer" onClick={() => navigate('/')}>
               <ShieldCheck size={32} />
             </div>
             <div>
@@ -256,7 +289,7 @@ const Admin = () => {
               {editingProfile ? 'Edit Account' : 'New Account'}
             </DialogTitle>
             <DialogDescription className="font-medium">
-              Update user details and permissions
+              {editingProfile ? 'Update user details and permissions' : 'Create a new secure account with a password'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-6">
@@ -270,6 +303,30 @@ const Admin = () => {
                 placeholder="Enter username..."
               />
             </div>
+
+            {!editingProfile && (
+              <div className="space-y-2">
+                <Label htmlFor="password" className="font-black uppercase text-[10px] tracking-widest text-muted-foreground pl-1">Set Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="rounded-2xl bg-secondary/30 border-none h-14 text-lg font-bold px-5 pr-12"
+                    placeholder="Enter password..."
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-indigo-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="role" className="font-black uppercase text-[10px] tracking-widest text-muted-foreground pl-1">Access Level</Label>
               <Select 
@@ -291,14 +348,16 @@ const Admin = () => {
               variant="ghost" 
               onClick={() => setIsDialogOpen(false)}
               className="flex-1 rounded-2xl h-14 font-black text-muted-foreground hover:bg-secondary transition-all"
+              disabled={loading}
             >
               Cancel
             </Button>
             <Button 
               onClick={handleSave}
               className="flex-1 rounded-2xl bg-indigo-600 hover:bg-indigo-700 h-14 font-black shadow-lg shadow-indigo-100 transition-all"
+              disabled={loading}
             >
-              Save Changes
+              {loading ? 'Processing...' : 'Save Changes'}
             </Button>
           </DialogFooter>
         </DialogContent>
