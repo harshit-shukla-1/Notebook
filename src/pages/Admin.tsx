@@ -48,8 +48,12 @@ const Admin = () => {
       .select('*')
       .order('username', { ascending: true });
 
-    if (error) showError("Failed to fetch kingdom records");
-    else setProfiles(data || []);
+    if (error) {
+      console.error("Kingdom fetch error details:", error);
+      showError("Failed to fetch kingdom records");
+    } else {
+      setProfiles(data || []);
+    }
     setLoading(false);
   };
 
