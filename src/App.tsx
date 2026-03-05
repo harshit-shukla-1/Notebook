@@ -17,6 +17,11 @@ const ProtectedRoute = ({ children, adminOnly = false }: { children: React.React
   
   if (loading) return null;
   if (!user) return <Navigate to="/login" />;
+  
+  // If an admin tries to access the notebook (/), redirect to admin
+  if (!adminOnly && isAdmin) return <Navigate to="/admin" />;
+  
+  // If a non-admin tries to access admin pages, redirect to home
   if (adminOnly && !isAdmin) return <Navigate to="/" />;
   
   return <>{children}</>;
@@ -41,7 +46,7 @@ const AppRoutes = () => (
         </ProtectedRoute>
       } 
     />
-    <Route path="*" element={<NotFound />} />
+    <Route path="*" element = {<NotFound />} />
   </Routes>
 );
 
