@@ -18,10 +18,7 @@ const ProtectedRoute = ({ children, adminOnly = false }: { children: React.React
   if (loading) return null;
   if (!user) return <Navigate to="/login" />;
   
-  // If an admin tries to access the notebook (/), redirect to admin
-  if (!adminOnly && isAdmin) return <Navigate to="/admin" />;
-  
-  // If a non-admin tries to access admin pages, redirect to home
+  // Only redirect non-admins away from admin pages
   if (adminOnly && !isAdmin) return <Navigate to="/" />;
   
   return <>{children}</>;
