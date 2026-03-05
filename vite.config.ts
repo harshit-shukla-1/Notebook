@@ -14,6 +14,11 @@ export default defineConfig(() => ({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      devOptions: {
+        enabled: true,
+        type: 'module',
+      },
       includeAssets: ['favicon.ico', 'robots.txt', 'placeholder.svg'],
       manifest: {
         name: "Harshit's Notebook",
@@ -30,13 +35,13 @@ export default defineConfig(() => ({
             src: 'placeholder.svg',
             sizes: '192x192',
             type: 'image/svg+xml',
-            purpose: 'any maskable'
+            purpose: 'any'
           },
           {
             src: 'placeholder.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
-            purpose: 'any maskable'
+            purpose: 'maskable'
           }
         ]
       }
