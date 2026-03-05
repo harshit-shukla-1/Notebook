@@ -37,23 +37,34 @@ const AddHierarchyDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-[32px]">
+      <DialogContent className="rounded-[32px] sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-black">
             {isEditing ? `Rename ${type}` : `New ${type}`}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <Input
             autoFocus
             placeholder={`Enter ${type} name...`}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="rounded-xl bg-secondary/30 border-none h-12"
+            className="rounded-xl bg-secondary/30 border-none h-12 text-base"
           />
-          <DialogFooter>
-            <Button type="submit" className="w-full rounded-xl bg-indigo-600 h-12 font-bold">
-              {isEditing ? 'Save Changes' : 'Create'}
+          <DialogFooter className="flex flex-row gap-3 sm:gap-3 items-center">
+            <Button 
+              type="button" 
+              variant="ghost" 
+              onClick={() => onOpenChange(false)}
+              className="flex-1 rounded-xl h-12 font-bold text-muted-foreground hover:bg-secondary"
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              className="flex-1 rounded-xl bg-indigo-600 h-12 font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-100"
+            >
+              {isEditing ? 'Save' : 'Add'}
             </Button>
           </DialogFooter>
         </form>
