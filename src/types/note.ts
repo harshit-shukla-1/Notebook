@@ -3,23 +3,26 @@ export type NoteType = 'text' | 'image' | 'voice';
 export interface Folder {
   id: string;
   name: string;
-  createdAt: number;
+  created_at: string;
+  user_id: string;
 }
 
 export interface Project {
   id: string;
-  folderId: string;
+  folder_id: string;
   name: string;
-  createdAt: number;
+  created_at: string;
+  user_id: string;
 }
 
 export interface Note {
   id: string;
-  projectId?: string; // Optional to support notes outside projects
+  project_id?: string;
   type: NoteType;
   title: string;
   content: string;
-  mediaUrl?: string;
-  createdAt: number;
+  media_url?: string;
+  created_at: string;
   color: string;
+  user_id: string;
 }

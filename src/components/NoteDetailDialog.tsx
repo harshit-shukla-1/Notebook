@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Note } from '../types/note';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -126,19 +126,19 @@ const NoteDetailDialog = ({ note, open, onOpenChange, onUpdateNote }: NoteDetail
               </div>
             )}
 
-            {note.type === 'image' && note.mediaUrl && (
+            {note.type === 'image' && note.media_url && (
               <div className="rounded-3xl overflow-hidden shadow-lg border border-indigo-50 dark:border-zinc-800">
                 <img 
-                  src={note.mediaUrl} 
+                  src={note.media_url} 
                   alt={note.title} 
                   className="w-full h-auto object-cover max-h-[400px]" 
                 />
               </div>
             )}
 
-            {note.type === 'voice' && note.mediaUrl && (
+            {note.type === 'voice' && note.media_url && (
               <div className="p-4 bg-indigo-50/50 dark:bg-zinc-800/50 rounded-2xl border border-indigo-100 dark:border-zinc-700">
-                <audio src={note.mediaUrl} controls className="w-full" />
+                <audio src={note.media_url} controls className="w-full" />
               </div>
             )}
 
@@ -161,11 +161,11 @@ const NoteDetailDialog = ({ note, open, onOpenChange, onUpdateNote }: NoteDetail
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
                   <Calendar size={14} className="text-amber-500" />
-                  {format(note.createdAt, 'MMMM do, yyyy')}
+                  {format(new Date(note.created_at), 'MMMM do, yyyy')}
                 </div>
                 <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
                   <Clock size={14} className="text-amber-500" />
-                  {format(note.createdAt, 'h:mm a')}
+                  {format(new Date(note.created_at), 'h:mm a')}
                 </div>
               </div>
               <div className="text-[10px] font-black uppercase tracking-widest text-indigo-950/20 dark:text-white/10">

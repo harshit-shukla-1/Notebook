@@ -8,7 +8,7 @@ import AddHierarchyDialog from '../components/AddHierarchyDialog';
 import { ThemeToggle } from '../components/ThemeToggle';
 import Logo from '../components/Logo';
 import { Input } from "@/components/ui/input";
-import { Search, Menu } from "lucide-react";
+import { Search, Menu, Loader2 } from "lucide-react";
 import { AnimatePresence } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -18,7 +18,7 @@ import { showSuccess } from '@/utils/toast';
 
 const Index = () => {
   const { 
-    folders, projects, notes, 
+    folders, projects, notes, loading,
     addFolder, updateFolder, deleteFolder,
     addProject, updateProject, deleteProject,
     addNote, updateNote, deleteNote 
@@ -29,7 +29,6 @@ const Index = () => {
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  // Dialog states
   const [folderDialog, setFolderDialog] = useState<{ open: boolean; folder?: Folder }>({ open: false });
   const [projectDialog, setProjectDialog] = useState<{ open: boolean; project?: Project; folderId?: string }>({ open: false });
   const [viewNote, setViewNote] = useState<{ open: boolean; note: Note | null }>({ open: false, note: null });
@@ -38,7 +37,7 @@ const Index = () => {
   const filteredNotes = notes.filter(n => {
     const matchesSearch = n.title.toLowerCase().includes(search.toLowerCase()) || 
                          n.content.toLowerCase().includes(search.toLowerCase());
-    const matchesProject = activeProjectId ? n.projectId === activeProjectId : !n.projectId;
+    const matchesProject = activeProjectId ? n.project_id === activeProjectId : !n.project_id;
     return matchesSearch && matchesProject;
   });
 
@@ -146,7 +145,12 @@ const Index = () => {
 
         <main className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 sm:py-8">
           <div className="max-w-5xl mx-auto">
-            {filteredNotes.length === 0 ? (
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-20">
+                <Loader2 className="w-10 h-10 text-amber-500 animate-spin mb-4" />
+                <p className="font-bold text-muted-foreground">Syncing kingdom archives...</p>
+              </div>
+            ) : filteredNotes.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 sm:py-32 text-center">
                 <div className="w-20 h-20 sm:w-24 sm:h-24 bg-amber-50 dark:bg-zinc-900 rounded-[32px] sm:rounded-[40px] flex items-center justify-center mb-6">
                   <Logo size={48} />
@@ -175,7 +179,7 @@ const Index = () => {
       </div>
 
       <CreateNoteDialog 
-        onAddNote={(note) => addNote({ ...note, projectId: activeProjectId || undefined })} 
+        onAddNote={(note) => addNote({ ...note, project_id: activeProjectId || undefined })} 
       />
 
       <NoteDetailDialog 

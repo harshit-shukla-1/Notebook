@@ -56,16 +56,16 @@ const NoteCard = ({ note, onDelete, onClick }: NoteCardProps) => {
             </Button>
           </div>
 
-          {note.type === 'image' && note.mediaUrl && (
+          {note.type === 'image' && note.media_url && (
             <div className="mb-4 rounded-2xl overflow-hidden aspect-video shrink-0">
-              <img src={note.mediaUrl} alt={note.title} className="w-full h-full object-cover" />
+              <img src={note.media_url} alt={note.title} className="w-full h-full object-cover" />
             </div>
           )}
 
-          {note.type === 'voice' && note.mediaUrl && (
+          {note.type === 'voice' && note.media_url && (
             <div className="mb-4 p-3 bg-secondary/30 rounded-2xl shrink-0">
               <audio 
-                src={note.mediaUrl} 
+                src={note.media_url} 
                 className="w-full h-8" 
                 onClick={(e) => e.stopPropagation()}
               />
@@ -78,7 +78,7 @@ const NoteCard = ({ note, onDelete, onClick }: NoteCardProps) => {
           </p>
           
           <div className="text-[10px] text-muted-foreground/60 font-medium mt-auto">
-            {formatDistanceToNow(note.createdAt)} ago
+            {formatDistanceToNow(new Date(note.created_at))} ago
           </div>
         </div>
       </Card>

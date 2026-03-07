@@ -11,7 +11,7 @@ import { Note, NoteType } from '../types/note';
 import { showSuccess } from '@/utils/toast';
 
 interface CreateNoteDialogProps {
-  onAddNote: (note: Note) => void;
+  onAddNote: (note: Partial<Note>) => void;
 }
 
 const COLORS = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'];
@@ -27,13 +27,11 @@ const CreateNoteDialog = ({ onAddNote }: CreateNoteDialogProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const newNote: Note = {
-      id: crypto.randomUUID(),
+    const newNote: Partial<Note> = {
       type: activeTab,
       title: title || (activeTab === 'text' ? 'New Note' : `New ${activeTab} Note`),
       content: content,
-      mediaUrl: mediaUrl,
-      createdAt: Date.now(),
+      media_url: mediaUrl,
       color: selectedColor
     };
 

@@ -1,84 +1,185 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/components/AuthProvider';
 import { Folder, Project, Note } from '../types/note';
+import { showError } from '@/utils/toast';
 
 export const useStorage = () => {
+  const { user } = useAuth();
   const [folders, setFolders] = useState<Folder[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const [fRes, pRes, nRes] = await Promise.all([
+        supabase.from('folders').select('*').order('created_at', { ascending: true }),
+        supabase.from('projects').select('*').order('created_at', { ascending: true }),
+        supabase.from('notes').select('*').order('created_at', { ascending: false })
+      ]);
+
+      if (fRes.error) throw fRes.error;
+      if (pRes.error) throw pRes.error;
+      if (nRes.error) throw nRes.error;
+
+      setFolders(fRes.data || []);
+      setProjects(pRes.data || []);
+      setNotes(nRes.data || []);
+    } catch (e: any) {
+      showError("Failed to fetch records from kingdom archives");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const data = localStorage.getItem('harshits-notebook-data');
-    if (data) {
-      try {
-        const parsed = JSON.parse(data);
-        setFolders(parsed.folders || []);
-        setProjects(parsed.projects || []);
-        setNotes(parsed.notes || []);
-      } catch (e) {
-        console.error("Failed to parse storage", e);
-      }
+    fetchData();
+  }, [user]);
+
+  const addFolder = async (name: string) => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('folders')
+      .insert([{ name, user_id: user.id }])
+      .select()
+      .single();
+
+    if (error) {
+      showError("Failed to establish new archive folder");
+      return null;
     }
-  }, []);
-
-  const saveData = (f: Folder[], p: Project[], n: Note[]) => {
-    setFolders(f);
-    setProjects(p);
-    setNotes(n);
-    localStorage.setItem('harshits-notebook-data', JSON.stringify({ folders: f, projects: p, notes: n }));
+    setFolders([...folders, data]);
+    return data;
   };
 
-  const addFolder = (name: string) => {
-    const newFolder = { id: crypto.randomUUID(), name, createdAt: Date.now() };
-    saveData([...folders, newFolder], projects, notes);
-    return newFolder;
+  const updateFolder = async (id: string, name: string) => {
+    const { error } = await supabase
+      .from('folders')
+      .update({ name })
+      .eq('id', id);
+
+    if (error) {
+      showError("Failed to rename folder");
+      return;
+    }
+    setFolders(folders.map(f => f.id === id ? { ...f, name } : f));
   };
 
-  const updateFolder = (id: string, name: string) => {
-    const updated = folders.map(f => f.id === id ? { ...f, name } : f);
-    saveData(updated, projects, notes);
+  const deleteFolder = async (id: string) => {
+    const { error } = await supabase
+      .from('folders')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      showError("Failed to remove folder");
+      return;
+    }
+    setFolders(folders.filter(f => f.id !== id));
+    // Associated projects and notes are deleted by DB cascade
+    setProjects(projects.filter(p => p.folder_id !== id));
+    const projectIdsToRemove = projects.filter(p => p.folder_id === id).map(p => p.id);
+    setNotes(notes.filter(n => !n.project_id || !projectIdsToRemove.includes(n.project_id)));
   };
 
-  const deleteFolder = (id: string) => {
-    const remainingFolders = folders.filter(f => f.id !== id);
-    const remainingProjects = projects.filter(p => p.folderId !== id);
-    // When deleting a folder, we also delete associated projects and their notes
-    const projectIdsToRemove = projects.filter(p => p.folderId === id).map(p => p.id);
-    const remainingNotes = notes.filter(n => !n.projectId || !projectIdsToRemove.includes(n.projectId));
-    saveData(remainingFolders, remainingProjects, remainingNotes);
+  const addProject = async (folderId: string, name: string) => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('projects')
+      .insert([{ name, folder_id: folderId, user_id: user.id }])
+      .select()
+      .single();
+
+    if (error) {
+      showError("Failed to create new collection");
+      return null;
+    }
+    setProjects([...projects, data]);
+    return data;
   };
 
-  const addProject = (folderId: string, name: string) => {
-    const newProject = { id: crypto.randomUUID(), folderId, name, createdAt: Date.now() };
-    saveData(folders, [...projects, newProject], notes);
-    return newProject;
+  const updateProject = async (id: string, name: string) => {
+    const { error } = await supabase
+      .from('projects')
+      .update({ name })
+      .eq('id', id);
+
+    if (error) {
+      showError("Failed to rename collection");
+      return;
+    }
+    setProjects(projects.map(p => p.id === id ? { ...p, name } : p));
   };
 
-  const updateProject = (id: string, name: string) => {
-    const updated = projects.map(p => p.id === id ? { ...p, name } : p);
-    saveData(folders, updated, notes);
+  const deleteProject = async (id: string) => {
+    const { error } = await supabase
+      .from('projects')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      showError("Failed to remove collection");
+      return;
+    }
+    setProjects(projects.filter(p => p.id !== id));
+    setNotes(notes.filter(n => n.project_id !== id));
   };
 
-  const deleteProject = (id: string) => {
-    const remainingProjects = projects.filter(p => p.id !== id);
-    const remainingNotes = notes.filter(n => n.projectId !== id);
-    saveData(folders, remainingProjects, remainingNotes);
+  const addNote = async (note: Partial<Note>) => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('notes')
+      .insert([{
+        ...note,
+        user_id: user.id,
+        created_at: new Date().toISOString()
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      showError("Failed to capture note");
+      return null;
+    }
+    setNotes([data, ...notes]);
+    return data;
   };
 
-  const addNote = (note: Note) => {
-    saveData(folders, projects, [note, ...notes]);
+  const updateNote = async (updatedNote: Note) => {
+    const { error } = await supabase
+      .from('notes')
+      .update({
+        title: updatedNote.title,
+        content: updatedNote.content,
+        color: updatedNote.color
+      })
+      .eq('id', updatedNote.id);
+
+    if (error) {
+      showError("Failed to sync note changes");
+      return;
+    }
+    setNotes(notes.map(n => n.id === updatedNote.id ? updatedNote : n));
   };
 
-  const updateNote = (updatedNote: Note) => {
-    const updated = notes.map(n => n.id === updatedNote.id ? updatedNote : n);
-    saveData(folders, projects, updated);
-  };
+  const deleteNote = async (id: string) => {
+    const { error } = await supabase
+      .from('notes')
+      .delete()
+      .eq('id', id);
 
-  const deleteNote = (id: string) => {
-    saveData(folders, projects, notes.filter(n => n.id !== id));
+    if (error) {
+      showError("Failed to delete note");
+      return;
+    }
+    setNotes(notes.filter(n => n.id !== id));
   };
 
   return { 
-    folders, projects, notes, 
+    folders, projects, notes, loading,
     addFolder, updateFolder, deleteFolder,
     addProject, updateProject, deleteProject,
     addNote, updateNote, deleteNote 

@@ -49,7 +49,6 @@ const Sidebar = ({
     );
   };
 
-  // Get display name from profile, metadata, or email
   const displayName = profile?.username || user?.user_metadata?.username || user?.email?.split('@')[0] || 'User';
   const displayRole = profile?.role || user?.user_metadata?.role || 'User';
 
@@ -125,7 +124,7 @@ const Sidebar = ({
 
                 {expandedFolders.includes(folder.id) && (
                   <div className="ml-6 space-y-1 border-l-2 border-amber-500/10 dark:border-zinc-800 pl-2">
-                    {projects.filter(p => p.folderId === folder.id).map(project => (
+                    {projects.filter(p => p.folder_id === folder.id).map(project => (
                       <div key={project.id} className="group flex items-center gap-2">
                         <button
                           onClick={() => onSelectProject(project.id)}
@@ -157,16 +156,13 @@ const Sidebar = ({
                         </DropdownMenu>
                       </div>
                     ))}
-                    {projects.filter(p => p.folderId === folder.id).length === 0 && (
+                    {projects.filter(p => p.folder_id === folder.id).length === 0 && (
                       <p className="text-[10px] text-muted-foreground/40 italic px-3 py-1">No collections</p>
                     )}
                   </div>
                 )}
               </div>
             ))}
-            {folders.length === 0 && (
-              <p className="text-[10px] text-muted-foreground/40 text-center py-4">Kingdom archives are empty</p>
-            )}
           </div>
         </div>
       </div>
