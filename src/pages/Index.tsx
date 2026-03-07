@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 import { useStorage } from '../hooks/useStorage';
 import NoteCard from '../components/NoteCard';
 import CreateNoteDialog from '../components/CreateNoteDialog';
+import NoteDetailDialog from '../components/NoteDetailDialog';
 import Sidebar from '../components/Sidebar';
 import AddHierarchyDialog from '../components/AddHierarchyDialog';
 import { ThemeToggle } from '../components/ThemeToggle';
 import Logo from '../components/Logo';
 import { Input } from "@/components/ui/input";
-import { Search, Inbox, Menu } from "lucide-react";
-import { motion, AnimatePresence } from 'framer-motion';
+import { Search, Menu } from "lucide-react";
+import { AnimatePresence } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Folder, Project } from '../types/note';
+import { Folder, Project, Note } from '../types/note';
 import { showSuccess } from '@/utils/toast';
 
 const Index = () => {
@@ -31,6 +32,7 @@ const Index = () => {
   // Dialog states
   const [folderDialog, setFolderDialog] = useState<{ open: boolean; folder?: Folder }>({ open: false });
   const [projectDialog, setProjectDialog] = useState<{ open: boolean; project?: Project; folderId?: string }>({ open: false });
+  const [viewNote, setViewNote] = useState<{ open: boolean; note: Note | null }>({ open: false, note: null });
 
   const activeProject = projects.find(p => p.id === activeProjectId);
   const filteredNotes = notes.filter(n => {
@@ -63,6 +65,10 @@ const Index = () => {
       addProject(projectDialog.folderId, name);
       showSuccess("Project created");
     }
+  };
+
+  const handleNoteClick = (note: Note) => {
+    setViewNote({ open: true, note });
   };
 
   return (
@@ -130,7 +136,7 @@ const Index = () => {
                   placeholder="Search..."
                   className="pl-10 h-10 bg-secondary/30 border-none rounded-xl text-sm"
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => setSearchTerm(search)}
                 />
               </div>
               <ThemeToggle />
@@ -154,7 +160,12 @@ const Index = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 <AnimatePresence mode="popLayout">
                   {filteredNotes.map((note) => (
-                    <NoteCard key={note.id} note={note} onDelete={deleteNote} />
+                    <NoteCard 
+                      key={note.id} 
+                      note={note} 
+                      onDelete={deleteNote} 
+                      onClick={handleNoteClick}
+                    />
                   ))}
                 </AnimatePresence>
               </div>
@@ -165,6 +176,12 @@ const Index = () => {
 
       <CreateNoteDialog 
         onAddNote={(note) => addNote({ ...note, projectId: activeProjectId || undefined })} 
+      />
+
+      <NoteDetailDialog 
+        note={viewNote.note}
+        open={viewNote.open}
+        onOpenChange={(open) => setViewNote({ ...viewNote, open })}
       />
 
       <AddHierarchyDialog 
