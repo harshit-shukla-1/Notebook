@@ -21,7 +21,7 @@ const Index = () => {
     folders, projects, notes, 
     addFolder, updateFolder, deleteFolder,
     addProject, updateProject, deleteProject,
-    addNote, deleteNote 
+    addNote, updateNote, deleteNote 
   } = useStorage();
   
   const [search, setSearch] = useState('');
@@ -136,7 +136,7 @@ const Index = () => {
                   placeholder="Search..."
                   className="pl-10 h-10 bg-secondary/30 border-none rounded-xl text-sm"
                   value={search}
-                  onChange={(e) => setSearchTerm(search)}
+                  onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
               <ThemeToggle />
@@ -182,6 +182,7 @@ const Index = () => {
         note={viewNote.note}
         open={viewNote.open}
         onOpenChange={(open) => setViewNote({ ...viewNote, open })}
+        onUpdateNote={updateNote}
       />
 
       <AddHierarchyDialog 

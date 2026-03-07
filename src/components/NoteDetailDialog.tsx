@@ -1,20 +1,51 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Note } from '../types/note';
 import { Button } from "@/components/ui/button";
-import { Mic, Image as ImageIcon, FileText, Calendar, X, Clock } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Mic, Image as ImageIcon, FileText, Calendar, X, Clock, Edit2, Check, Palette } from "lucide-react";
 import { format } from 'date-fns';
+import { showSuccess } from '@/utils/toast';
 
 interface NoteDetailDialogProps {
   note: Note | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUpdateNote: (note: Note) => void;
 }
 
-const NoteDetailDialog = ({ note, open, onOpenChange }: NoteDetailDialogProps) => {
+const COLORS = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'];
+
+const NoteDetailDialog = ({ note, open, onOpenChange, onUpdateNote }: NoteDetailDialogProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [color, setColor] = useState('');
+
+  useEffect(() => {
+    if (note) {
+      setTitle(note.title);
+      setContent(note.content);
+      setColor(note.color);
+      setIsEditing(false);
+    }
+  }, [note, open]);
+
   if (!note) return null;
+
+  const handleSave = () => {
+    onUpdateNote({
+      ...note,
+      title,
+      content,
+      color
+    });
+    setIsEditing(false);
+    showSuccess("Note updated in archives");
+  };
 
   const getTypeIcon = () => {
     switch (note.type) {
@@ -28,34 +59,73 @@ const NoteDetailDialog = ({ note, open, onOpenChange }: NoteDetailDialogProps) =
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[95vw] max-w-[600px] rounded-[32px] border-none p-0 overflow-hidden bg-white dark:bg-zinc-900 shadow-2xl">
         <div 
-          className="h-3 w-full" 
-          style={{ backgroundColor: note.color || '#6366f1' }}
+          className="h-3 w-full transition-colors duration-300" 
+          style={{ backgroundColor: color || note.color || '#6366f1' }}
         />
         
         <div className="p-6 sm:p-8 max-h-[85vh] overflow-y-auto custom-scrollbar">
           <div className="flex justify-between items-start mb-6">
-            <div className="space-y-2">
+            <div className="space-y-2 flex-1 mr-4">
               <div className="flex items-center gap-2 px-3 py-1 bg-secondary/50 rounded-full w-fit">
                 {getTypeIcon()}
                 <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                   {note.type} Note
                 </span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-indigo-950 dark:text-white leading-tight">
-                {note.title || 'Untitled Entry'}
-              </h2>
+              
+              {isEditing ? (
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="text-2xl sm:text-3xl font-black text-indigo-950 dark:text-white leading-tight border-none bg-secondary/30 rounded-xl h-auto py-2 focus-visible:ring-indigo-500/20"
+                  placeholder="Note Title"
+                />
+              ) : (
+                <h2 className="text-2xl sm:text-3xl font-black text-indigo-950 dark:text-white leading-tight">
+                  {note.title || 'Untitled Entry'}
+                </h2>
+              )}
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-10 w-10 rounded-xl bg-secondary/50 hover:bg-secondary shrink-0"
-              onClick={() => onOpenChange(false)}
-            >
-              <X size={20} />
-            </Button>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`h-10 w-10 rounded-xl transition-all ${isEditing ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-secondary/50 hover:bg-secondary'}`}
+                onClick={() => isEditing ? handleSave() : setIsEditing(true)}
+              >
+                {isEditing ? <Check size={20} /> : <Edit2 size={18} />}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 rounded-xl bg-secondary/50 hover:bg-secondary"
+                onClick={() => onOpenChange(false)}
+              >
+                <X size={20} />
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-6">
+            {isEditing && (
+              <div className="flex flex-col gap-3 p-4 bg-secondary/20 rounded-2xl border border-indigo-50 dark:border-zinc-800">
+                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                  <Palette size={12} /> Theme Color
+                </div>
+                <div className="flex gap-3">
+                  {COLORS.map(c => (
+                    <button
+                      key={c}
+                      type="button"
+                      className={`w-7 h-7 rounded-full transition-all ${color === c ? 'scale-125 ring-2 ring-offset-2 ring-indigo-500' : 'hover:scale-110'}`}
+                      style={{ backgroundColor: c }}
+                      onClick={() => setColor(c)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
             {note.type === 'image' && note.mediaUrl && (
               <div className="rounded-3xl overflow-hidden shadow-lg border border-indigo-50 dark:border-zinc-800">
                 <img 
@@ -73,9 +143,18 @@ const NoteDetailDialog = ({ note, open, onOpenChange }: NoteDetailDialogProps) =
             )}
 
             <div className="prose prose-indigo dark:prose-invert max-w-none">
-              <p className="text-base sm:text-lg text-indigo-950/80 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap font-medium">
-                {note.content || "No description provided."}
-              </p>
+              {isEditing ? (
+                <Textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  className="min-h-[200px] text-base sm:text-lg text-indigo-950/80 dark:text-zinc-300 leading-relaxed border-none bg-secondary/30 rounded-2xl p-4 focus-visible:ring-indigo-500/20 resize-none"
+                  placeholder="What's on your mind?"
+                />
+              ) : (
+                <p className="text-base sm:text-lg text-indigo-950/80 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap font-medium">
+                  {note.content || "No description provided."}
+                </p>
+              )}
             </div>
 
             <div className="pt-8 border-t border-dashed border-indigo-100 dark:border-zinc-800 flex flex-wrap gap-4 items-center justify-between">
