@@ -8,11 +8,12 @@ import AddHierarchyDialog from '../components/AddHierarchyDialog';
 import { ThemeToggle } from '../components/ThemeToggle';
 import Logo from '../components/Logo';
 import { Input } from "@/components/ui/input";
-import { Search, Menu, Loader2 } from "lucide-react";
+import { Search, Menu, Loader2, ArrowLeft, Home } from "lucide-react";
 import { AnimatePresence } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { Folder, Project, Note } from '../types/note';
 import { showSuccess } from '@/utils/toast';
 
@@ -28,6 +29,7 @@ const Index = () => {
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
   
   const [folderDialog, setFolderDialog] = useState<{ open: boolean; folder?: Folder }>({ open: false });
   const [projectDialog, setProjectDialog] = useState<{ open: boolean; project?: Project; folderId?: string }>({ open: false });
@@ -91,49 +93,72 @@ const Index = () => {
       <div className="flex-1 flex flex-col overflow-hidden relative">
         <header className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-indigo-50 dark:border-zinc-800 px-4 sm:px-8 py-4 sm:py-6">
           <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              {isMobile && (
-                <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-                  <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-secondary/50">
-                      <Menu size={20} />
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="left" className="p-0 w-72 border-none">
-                    <Sidebar 
-                      folders={folders}
-                      projects={projects}
-                      activeProjectId={activeProjectId}
-                      onSelectProject={handleSelectProject}
-                      onAddFolder={() => setFolderDialog({ open: true })}
-                      onEditFolder={(folder) => setFolderDialog({ open: true, folder })}
-                      onDeleteFolder={deleteFolder}
-                      onAddProject={(folderId) => setProjectDialog({ open: true, folderId })}
-                      onEditProject={(project) => setProjectDialog({ open: true, project })}
-                      onDeleteProject={deleteProject}
-                    />
-                  </SheetContent>
-                </Sheet>
-              )}
-              <div className="hidden xs:flex w-12 h-12 bg-indigo-950 rounded-2xl items-center justify-center shadow-lg shadow-amber-200/20 shrink-0 border border-amber-500/20">
-                <Logo size={32} />
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
+                  onClick={() => navigate(-1)}
+                  title="Go Back"
+                >
+                  <ArrowLeft size={18} />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
+                  onClick={() => handleSelectProject(null)}
+                  title="Home / Inbox"
+                >
+                  <Home size={18} />
+                </Button>
               </div>
-              <div className="min-w-0">
-                <h1 className="text-lg sm:text-2xl font-black tracking-tight text-indigo-950 dark:text-white leading-none truncate">
-                  {activeProjectId ? activeProject?.name : "Inbox"}
-                </h1>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-amber-600 mt-1 truncate">
-                  Lanka Notebook
-                </p>
+
+              <div className="flex items-center gap-3">
+                {isMobile && (
+                  <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                    <SheetTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-secondary/50">
+                        <Menu size={20} />
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="p-0 w-72 border-none">
+                      <Sidebar 
+                        folders={folders}
+                        projects={projects}
+                        activeProjectId={activeProjectId}
+                        onSelectProject={handleSelectProject}
+                        onAddFolder={() => setFolderDialog({ open: true })}
+                        onEditFolder={(folder) => setFolderDialog({ open: true, folder })}
+                        onDeleteFolder={deleteFolder}
+                        onAddProject={(folderId) => setProjectDialog({ open: true, folderId })}
+                        onEditProject={(project) => setProjectDialog({ open: true, project })}
+                        onDeleteProject={deleteProject}
+                      />
+                    </SheetContent>
+                  </Sheet>
+                )}
+                <div className="hidden xs:flex w-10 h-10 sm:w-12 sm:h-12 bg-indigo-950 rounded-2xl items-center justify-center shadow-lg shadow-amber-200/20 shrink-0 border border-amber-500/20">
+                  <Logo size={28} />
+                </div>
+                <div className="min-w-0">
+                  <h1 className="text-base sm:text-2xl font-black tracking-tight text-indigo-950 dark:text-white leading-none truncate">
+                    {activeProjectId ? activeProject?.name : "Inbox"}
+                  </h1>
+                  <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-amber-600 mt-1 truncate">
+                    Lanka Notebook
+                  </p>
+                </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-2 flex-1 max-w-[300px] justify-end">
-              <div className="relative flex-1 max-w-[200px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+            <div className="flex items-center gap-2 flex-1 max-w-[280px] justify-end">
+              <div className="relative flex-1 max-w-[160px] sm:max-w-[200px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
                 <Input
                   placeholder="Search..."
-                  className="pl-10 h-10 bg-secondary/30 border-none rounded-xl text-sm"
+                  className="pl-9 h-9 sm:h-10 bg-secondary/30 border-none rounded-xl text-xs sm:text-sm"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />

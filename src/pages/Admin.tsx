@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Logo from '@/components/Logo';
-import { Users, Trash2, UserPlus, LogOut, Edit2, Search, Eye, EyeOff } from "lucide-react";
+import { Users, Trash2, UserPlus, LogOut, Edit2, Search, Eye, EyeOff, ArrowLeft, Home } from "lucide-react";
 import { showError, showSuccess } from '@/utils/toast';
 
 const Admin = () => {
@@ -162,17 +162,40 @@ const Admin = () => {
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 bg-white dark:bg-zinc-900 p-6 sm:p-8 rounded-[40px] shadow-xl shadow-amber-500/5 border border-indigo-50 dark:border-zinc-800">
-          <div className="flex items-center gap-5">
-            <div className="w-16 h-16 bg-indigo-950 rounded-[24px] flex items-center justify-center text-white shadow-lg shadow-amber-500/10 cursor-pointer border border-amber-500/20" onClick={() => navigate('/')}>
-              <Logo size={40} />
+          <div className="flex items-center gap-2 sm:gap-6">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-indigo-100 hover:bg-secondary transition-all"
+                onClick={() => navigate(-1)}
+                title="Go Back"
+              >
+                <ArrowLeft size={20} />
+              </Button>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-indigo-100 hover:bg-secondary transition-all"
+                onClick={() => navigate('/')}
+                title="Go Home"
+              >
+                <Home size={20} />
+              </Button>
             </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-indigo-950 dark:text-white leading-none">
-                Command Center
-              </h1>
-              <p className="text-amber-600 font-bold text-[10px] uppercase tracking-widest mt-2">
-                Kingdom Management Console
-              </p>
+            
+            <div className="flex items-center gap-5">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-indigo-950 rounded-[20px] sm:rounded-[24px] flex items-center justify-center text-white shadow-lg shadow-amber-500/10 cursor-pointer border border-amber-500/20" onClick={() => navigate('/')}>
+                <Logo size={32} />
+              </div>
+              <div>
+                <h1 className="text-xl sm:text-3xl font-black text-indigo-950 dark:text-white leading-none">
+                  Command Center
+                </h1>
+                <p className="text-amber-600 font-bold text-[9px] sm:text-[10px] uppercase tracking-widest mt-2">
+                  Kingdom Management Console
+                </p>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-3">
