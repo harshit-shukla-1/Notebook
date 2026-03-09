@@ -5,6 +5,7 @@ import CreateNoteDialog from '../components/CreateNoteDialog';
 import NoteDetailDialog from '../components/NoteDetailDialog';
 import Sidebar from '../components/Sidebar';
 import AddHierarchyDialog from '../components/AddHierarchyDialog';
+import ExitConfirmDialog from '../components/ExitConfirmDialog';
 import { ThemeToggle } from '../components/ThemeToggle';
 import Logo from '../components/Logo';
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ const Index = () => {
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [exitDialogOpen, setExitDialogOpen] = useState(false);
   const navigate = useNavigate();
   
   const [folderDialog, setFolderDialog] = useState<{ open: boolean; folder?: Folder }>({ open: false });
@@ -72,6 +74,20 @@ const Index = () => {
     setViewNote({ open: true, note });
   };
 
+  const handleBack = () => {
+    if (activeProjectId) {
+      setActiveProjectId(null); // Go back to Inbox if in a project
+    } else {
+      setExitDialogOpen(true); // Ask to exit if already at Inbox
+    }
+  };
+
+  const handleConfirmExit = () => {
+    // In a web app, 'exit' usually means going back to the browser start or history
+    // For this PWA/App context, we'll navigate back in history
+    window.history.back();
+  };
+
   return (
     <div className="flex h-screen bg-[#F8F9FE] dark:bg-zinc-950 overflow-hidden">
       {!isMobile && (
@@ -99,7 +115,7 @@ const Index = () => {
                   variant="ghost" 
                   size="icon" 
                   className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
-                  onClick={() => navigate(-1)}
+                  onClick={handleBack}
                   title="Go Back"
                 >
                   <ArrowLeft size={18} />
@@ -230,6 +246,12 @@ const Index = () => {
         onSubmit={onProjectSubmit}
         initialValue={projectDialog.project?.name}
         isEditing={!!projectDialog.project}
+      />
+
+      <ExitConfirmDialog 
+        open={exitDialogOpen} 
+        onOpenChange={setExitDialogOpen} 
+        onConfirm={handleConfirmExit}
       />
     </div>
   );
